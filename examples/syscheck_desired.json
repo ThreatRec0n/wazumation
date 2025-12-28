@@ -1,7 +1,1 @@
-{
-  "disabled": "yes",
-  "frequency": "86400",
-  "scan_on_start": "yes"
-}
-
-
+{ "directories": "/etc,/usr/bin,/usr/sbin", "disabled": "no", "frequency": "86400" }
