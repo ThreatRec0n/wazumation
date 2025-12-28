@@ -1,0 +1,8 @@
+﻿__pycache__/
+*.pyc
+*.log
+*.db
+.wazumation_test/
+.wazumation_tmp/
+.venv/
+.env

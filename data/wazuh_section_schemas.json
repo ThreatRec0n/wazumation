@@ -1,0 +1,2607 @@
+{
+  "active-response": {
+    "additionalProperties": false,
+    "properties": {
+      "agent_id": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "command": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "disabled": {
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "level": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "repeated_offenders": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "rules_group": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "rules_id": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "timeout": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "agent-upgrade": {
+    "additionalProperties": false,
+    "properties": {
+      "ca_verification": {
+        "default": "etc/wpk_root.pem",
+        "type": "string"
+      },
+      "chunk_size": {
+        "default": "32768",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "max_threads": {
+        "default": "8",
+        "type": "string"
+      },
+      "notification_wait_factor": {
+        "default": "2.0",
+        "type": "string"
+      },
+      "notification_wait_max": {
+        "default": "1h",
+        "type": "string"
+      },
+      "notification_wait_start": {
+        "default": "5m",
+        "type": "string"
+      },
+      "wpk_repository": {
+        "default": "packages.wazuh.com/4.x/wpk/",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "agentless": {
+    "additionalProperties": false,
+    "properties": {
+      "arguments": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "frequency": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "host": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "state": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "type": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "alerts": {
+    "additionalProperties": false,
+    "properties": {
+      "email_alert_level": {
+        "default": "12",
+        "type": "string"
+      },
+      "log_alert_level": {
+        "default": "3",
+        "type": "string"
+      },
+      "use_geoip": {
+        "default": "n/a",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "anti_tampering": {
+    "additionalProperties": false,
+    "properties": {
+      "package_uninstallation": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "auth": {
+    "additionalProperties": false,
+    "properties": {
+      "agents": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "ciphers": {
+        "default": "HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "force": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "ipv6": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "key_request": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "port": {
+        "default": "1515",
+        "type": "string"
+      },
+      "purge": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "remote_enrollment": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "ssl_agent_ca": {
+        "type": "string"
+      },
+      "ssl_auto_negotiate": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "ssl_manager_cert": {
+        "default": "etc/sslmanager.cert",
+        "type": "string"
+      },
+      "ssl_manager_key": {
+        "default": "etc/sslmanager.key",
+        "type": "string"
+      },
+      "ssl_verify_host": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "use_password": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "use_source_ip": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "client": {
+    "additionalProperties": false,
+    "properties": {
+      "address": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "agent_address": {
+        "default": "src",
+        "type": "string"
+      },
+      "agent_certificate_path": {
+        "default": "NULL",
+        "type": "string"
+      },
+      "agent_key_path": {
+        "default": "NULL",
+        "type": "string"
+      },
+      "agent_name": {
+        "default": "Hostname of the machine.",
+        "type": "string"
+      },
+      "authorization_pass_path": {
+        "default": "Windows: authd.pass\nUnix:    /etc/authd.pass",
+        "type": "string"
+      },
+      "auto_method": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "auto_restart": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "config-profile": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "crypto_method": {
+        "default": "aes",
+        "enum": [
+          "blowfish",
+          "aes"
+        ],
+        "type": "string"
+      },
+      "delay_after_enrollment": {
+        "default": "20",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "force_reconnect_interval": {
+        "default": "0s (disabled)",
+        "type": "string"
+      },
+      "groups": {
+        "default": "NULL",
+        "type": "string"
+      },
+      "interface_index": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "ip_update_interval": {
+        "default": "0",
+        "type": "string"
+      },
+      "manager_address": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "max_retries": {
+        "default": "5",
+        "type": "string"
+      },
+      "notify_time": {
+        "default": "20",
+        "type": "string"
+      },
+      "port": {
+        "default": "1515",
+        "type": "string"
+      },
+      "protocol": {
+        "default": "tcp",
+        "enum": [
+          "udp",
+          "tcp"
+        ],
+        "type": "string"
+      },
+      "retry_interval": {
+        "default": "10",
+        "type": "string"
+      },
+      "server_ca_path": {
+        "default": "NULL",
+        "type": "string"
+      },
+      "ssl_cipher": {
+        "default": "HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH",
+        "type": "string"
+      },
+      "time-reconnect": {
+        "default": "60",
+        "type": "string"
+      },
+      "use_source_ip": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "client_buffer": {
+    "additionalProperties": false,
+    "properties": {
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "events_per_second": {
+        "default": "500",
+        "type": "string"
+      },
+      "queue_size": {
+        "default": "5000",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "cluster": {
+    "additionalProperties": false,
+    "properties": {
+      "agent_chunk_size": {
+        "default": "300",
+        "type": "string"
+      },
+      "agent_reconnection_stability_time": {
+        "default": "60",
+        "type": "string"
+      },
+      "agent_reconnection_time": {
+        "default": "5",
+        "type": "string"
+      },
+      "bind_addr": {
+        "default": "0.0.0.0",
+        "type": "string"
+      },
+      "client_cert": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "client_cert_key": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "client_cert_password": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "excluded_nodes": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "frequency": {
+        "default": "60",
+        "type": "string"
+      },
+      "haproxy_address": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "haproxy_backend": {
+        "default": "wazuh_reporting",
+        "type": "string"
+      },
+      "haproxy_cert": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "haproxy_disabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "haproxy_helper": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "haproxy_password": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "haproxy_port": {
+        "default": "5555",
+        "type": "string"
+      },
+      "haproxy_protocol": {
+        "default": "http",
+        "enum": [
+          "http",
+          "https"
+        ],
+        "type": "string"
+      },
+      "haproxy_resolver": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "haproxy_user": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "hidden": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "imbalance_tolerance": {
+        "default": "0.1",
+        "type": "string"
+      },
+      "key": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "name": {
+        "default": "wazuh",
+        "type": "string"
+      },
+      "node_name": {
+        "default": "node01",
+        "type": "string"
+      },
+      "node_type": {
+        "default": "master",
+        "enum": [
+          "master",
+          "worker"
+        ],
+        "type": "string"
+      },
+      "nodes": {
+        "default": "NODE_IP",
+        "type": "string"
+      },
+      "port": {
+        "default": "1516",
+        "type": "string"
+      },
+      "remove_disconnected_node_after": {
+        "default": "240",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "command": {
+    "additionalProperties": false,
+    "properties": {
+      "executable": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "expect": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "extra_args": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "name": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "timeout_allowed": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "database_output": {
+    "additionalProperties": false,
+    "properties": {
+      "database": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "hostname": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "password": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "type": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "username": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "email_alerts": {
+    "additionalProperties": false,
+    "properties": {
+      "do_not_delay": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "do_not_group": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "email_to": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "event_location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "format": {
+        "default": "full",
+        "type": "string"
+      },
+      "group": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "level": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "rule_id": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "fluent-forward": {
+    "additionalProperties": false,
+    "properties": {
+      "address": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "attributes": {
+        "type": "string"
+      },
+      "ca_file": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "n/a",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "keepalive": {
+        "type": "string"
+      },
+      "keepalive-options": {
+        "type": "string"
+      },
+      "object_key": {
+        "default": "message",
+        "type": "string"
+      },
+      "password": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "poll_interval": {
+        "default": "60",
+        "type": "string"
+      },
+      "port": {
+        "default": "24224",
+        "type": "string"
+      },
+      "shared_key": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "socket_path": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "tag": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "timeout": {
+        "default": "0",
+        "type": "string"
+      },
+      "user": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "gcp-bucket": {
+    "additionalProperties": false,
+    "properties": {
+      "bucket": {
+        "type": "string"
+      },
+      "credentials-file": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "n/a",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "1h",
+        "type": "string"
+      },
+      "name": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "only-logs-after": {
+        "default": "Date of execution at 00:00:00",
+        "type": "string"
+      },
+      "path": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "remove-from-bucket": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "run_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "type-attribute": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "wday": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "gcp-pubsub": {
+    "additionalProperties": false,
+    "properties": {
+      "credentials_file": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "n/a",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "1h",
+        "type": "string"
+      },
+      "max_messages": {
+        "default": "100",
+        "type": "string"
+      },
+      "num_threads": {
+        "default": "1",
+        "type": "string"
+      },
+      "project_id": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "pull_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "subscription_name": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "wday": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "github": {
+    "additionalProperties": false,
+    "properties": {
+      "api_auth": {
+        "type": "string"
+      },
+      "api_parameters": {
+        "type": "string"
+      },
+      "curl_max_size": {
+        "default": "1M",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "10m",
+        "type": "string"
+      },
+      "only_future_events": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "time_delay": {
+        "default": "30s",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "global": {
+    "additionalProperties": false,
+    "properties": {
+      "agents_disconnection_alert_time": {
+        "default": "0s",
+        "type": "string"
+      },
+      "agents_disconnection_time": {
+        "default": "15m",
+        "type": "string"
+      },
+      "alerts_log": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "custom_alert_output": {
+        "type": "string"
+      },
+      "email_from": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "email_idsname": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "email_log_source": {
+        "default": "alerts.log",
+        "type": "string"
+      },
+      "email_maxperhour": {
+        "default": "12",
+        "type": "string"
+      },
+      "email_notification": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "email_reply_to": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "email_to": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "forward_to": {
+        "default": "None",
+        "type": "string"
+      },
+      "geoipdb": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "helo_server": {
+        "default": "notify.ossec.net",
+        "type": "string"
+      },
+      "host_information": {
+        "default": "8",
+        "type": "string"
+      },
+      "jsonout_output": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "limits": {
+        "type": "string"
+      },
+      "limits-eps": {
+        "type": "string"
+      },
+      "limits-eps-maximum": {
+        "default": "0",
+        "type": "string"
+      },
+      "limits-eps-timeframe": {
+        "default": "10",
+        "type": "string"
+      },
+      "logall": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "logall_json": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "max_output_size": {
+        "default": "0 (disabled)",
+        "type": "string"
+      },
+      "memory_size": {
+        "default": "8192",
+        "type": "string"
+      },
+      "prelude_log_level": {
+        "default": "0",
+        "type": "string"
+      },
+      "prelude_output": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "prelude_profile": {
+        "default": "OSSEC",
+        "type": "string"
+      },
+      "rotate_interval": {
+        "default": "0 (disabled)",
+        "type": "string"
+      },
+      "smtp_server": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "stats": {
+        "default": "8",
+        "type": "string"
+      },
+      "update_check": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "white_list": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "zeromq_output": {
+        "default": "n/a",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "zeromq_uri": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "indexer": {
+    "additionalProperties": false,
+    "properties": {
+      "ca": {
+        "default": "/etc/filebeat/certs/root-ca.pem",
+        "type": "string"
+      },
+      "certificate": {
+        "default": "/etc/filebeat/certs/filebeat.pem",
+        "type": "string"
+      },
+      "certificate-authorities": {
+        "default": "/etc/filebeat/certs/root-ca.pem",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "host": {
+        "default": "https://0.0.0.0:9200",
+        "type": "string"
+      },
+      "hosts": {
+        "default": "https://0.0.0.0:9200",
+        "type": "string"
+      },
+      "key": {
+        "default": "/etc/filebeat/certs/filebeat-key.pem",
+        "type": "string"
+      },
+      "ssl": {
+        "default": "/etc/filebeat/certs/root-ca.pem",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "integration": {
+    "additionalProperties": false,
+    "properties": {
+      "alert_format": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "api_key": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "event_location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "group": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "hook_url": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "level": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "max_log": {
+        "default": "165",
+        "type": "string"
+      },
+      "name": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "options": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "retries": {
+        "default": "3",
+        "type": "string"
+      },
+      "rule_id": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "timeout": {
+        "default": "10",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "labels": {
+    "additionalProperties": false,
+    "properties": {
+      "label": {
+        "default": "no",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "localfile": {
+    "additionalProperties": false,
+    "properties": {
+      "age": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "alias": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "command": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "exclude": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "filter": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "frequency": {
+        "default": "360",
+        "type": "string"
+      },
+      "ignore": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "ignore_binaries": {
+        "default": "n/a",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "log_format": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "multiline_regex": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "only-future-events": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "out_format": {
+        "type": "string"
+      },
+      "query": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "reconnect_time": {
+        "default": "5s",
+        "type": "string"
+      },
+      "restrict": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "target": {
+        "default": "agent",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "logging": {
+    "additionalProperties": false,
+    "properties": {
+      "log_format": {
+        "default": "plain",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "ms-graph": {
+    "additionalProperties": false,
+    "properties": {
+      "api_auth": {
+        "type": "string"
+      },
+      "curl_max_size": {
+        "default": "1M",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "1d",
+        "type": "string"
+      },
+      "only_future_events": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "page_size": {
+        "default": "50",
+        "type": "string"
+      },
+      "resource": {
+        "type": "string"
+      },
+      "run_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "time_delay": {
+        "default": "30s",
+        "type": "string"
+      },
+      "version": {
+        "default": "v1.0",
+        "enum": [
+          "beta",
+          "v1.0"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "office365": {
+    "additionalProperties": false,
+    "properties": {
+      "api_auth": {
+        "type": "string"
+      },
+      "curl_max_size": {
+        "default": "1M",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "10m",
+        "type": "string"
+      },
+      "only_future_events": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "subscriptions": {
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "remote": {
+    "additionalProperties": false,
+    "properties": {
+      "agents": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "allowed-ips": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "connection": {
+        "default": "secure",
+        "enum": [
+          "secure",
+          "syslog"
+        ],
+        "type": "string"
+      },
+      "connection_overtake_time": {
+        "default": "60",
+        "type": "string"
+      },
+      "denied-ips": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "ipv6": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "local_ip": {
+        "default": "All interfaces",
+        "type": "string"
+      },
+      "port": {
+        "default": "1514 if secure, 514 if syslog",
+        "type": "string"
+      },
+      "protocol": {
+        "default": "tcp",
+        "enum": [
+          "udp",
+          "tcp"
+        ],
+        "type": "string"
+      },
+      "queue_size": {
+        "default": "131072",
+        "type": "string"
+      },
+      "rids_closing_time": {
+        "default": "5m",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "reports": {
+    "additionalProperties": false,
+    "properties": {
+      "category": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "email_to": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "group": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "level": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "rule": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "showlogs": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "srcip": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "title": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "user": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "rootcheck": {
+    "additionalProperties": false,
+    "properties": {
+      "base_directory": {
+        "type": "string"
+      },
+      "check_dev": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_files": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_if": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_pids": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_ports": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_sys": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_trojans": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_unixaudit": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_winapps": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_winaudit": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "check_winmalware": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "frequency": {
+        "default": "43200",
+        "type": "string"
+      },
+      "ignore": {
+        "type": "string"
+      },
+      "readall": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "rootkit_files": {
+        "default": "etc/shared/rootkit_files.txt",
+        "type": "string"
+      },
+      "rootkit_trojans": {
+        "default": "etc/shared/rootkit_trojans.txt",
+        "type": "string"
+      },
+      "scanall": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "skip_nfs": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "system_audit": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "windows_apps": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "windows_audit": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "windows_malware": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "rule_test": {
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "max_sessions": {
+        "default": "1",
+        "type": "string"
+      },
+      "session_timeout": {
+        "default": "15m",
+        "type": "string"
+      },
+      "threads": {
+        "default": "1",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "ruleset": {
+    "additionalProperties": false,
+    "properties": {
+      "decoder_dir": {
+        "default": "ruleset/decoders",
+        "type": "string"
+      },
+      "decoder_exclude": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "decoder_include": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "list": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "rule_dir": {
+        "default": "ruleset/rules",
+        "type": "string"
+      },
+      "rule_exclude": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "rule_include": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "sca": {
+    "additionalProperties": false,
+    "properties": {
+      "day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "12h",
+        "type": "string"
+      },
+      "policies": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "scan_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "skip_nfs": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "wday": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "socket": {
+    "additionalProperties": false,
+    "properties": {
+      "location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "mode": {
+        "default": "udp",
+        "enum": [
+          "tcp",
+          "udp"
+        ],
+        "type": "string"
+      },
+      "name": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "prefix": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "syscheck": {
+    "additionalProperties": false,
+    "properties": {
+      "alert_new_files": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "allow_remote_prefilter_cmd": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "database": {
+        "default": "disk",
+        "enum": [
+          "disk",
+          "memory"
+        ],
+        "type": "string"
+      },
+      "diff": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "directories": {
+        "default": "/etc,/usr/bin,/usr/sbin,/bin,/sbin",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "disk_quota": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "file_limit": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "file_size": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "frequency": {
+        "default": "43200",
+        "type": "string"
+      },
+      "ignore": {
+        "default": "The default configuration may vary depending on the operating system.",
+        "type": "string"
+      },
+      "max_eps": {
+        "default": "50",
+        "type": "string"
+      },
+      "max_files_per_second": {
+        "default": "0",
+        "type": "string"
+      },
+      "nodiff": {
+        "type": "string"
+      },
+      "prefilter_cmd": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "process_priority": {
+        "default": "10",
+        "type": "string"
+      },
+      "registry_ignore": {
+        "default": "The default configuration may vary depending on the operating system.",
+        "type": "string"
+      },
+      "registry_limit": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "registry_nodiff": {
+        "type": "string"
+      },
+      "scan_day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "scan_time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "skip_dev": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "skip_nfs": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "skip_proc": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "skip_sys": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "synchronization": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "whodata": {
+        "default": "audit",
+        "enum": [
+          "audit",
+          "ebpf"
+        ],
+        "type": "string"
+      },
+      "windows_audit_interval": {
+        "default": "300 seconds",
+        "type": "string"
+      },
+      "windows_registry": {
+        "default": "The default configuration may vary depending on the operating system.",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "syslog_output": {
+    "additionalProperties": false,
+    "properties": {
+      "format": {
+        "default": "default",
+        "type": "string"
+      },
+      "group": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "level": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "location": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "port": {
+        "default": "514",
+        "type": "string"
+      },
+      "rule_id": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "server": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "use_fqdn": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "task-manager": {
+    "additionalProperties": false,
+    "properties": {
+      "cleanup_time": {
+        "default": "7d",
+        "type": "string"
+      },
+      "task_timeout": {
+        "default": "15m",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "vulnerability-detection": {
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "feed-update-interval": {
+        "default": "60m",
+        "type": "string"
+      },
+      "index-status": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "offline-url": {
+        "default": "Empty",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wazuh_db": {
+    "additionalProperties": false,
+    "properties": {
+      "backup": {
+        "default": "3",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"agent-key-polling\"": {
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "exec_path": {
+        "default": "none",
+        "type": "string"
+      },
+      "force_insert": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "queue_size": {
+        "default": "1024",
+        "type": "string"
+      },
+      "socket": {
+        "default": "none",
+        "type": "string"
+      },
+      "threads": {
+        "default": "1",
+        "type": "string"
+      },
+      "timeout": {
+        "default": "60",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"aws-s3\"": {
+    "additionalProperties": false,
+    "properties": {
+      "access_key": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "aws_account_alias": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "aws_account_id": {
+        "default": "All accounts",
+        "type": "string"
+      },
+      "aws_log_groups": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "aws_organization_id": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "aws_profile": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "day": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "discard_regex": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "external_id": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "iam_role_arn": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "iam_role_duration": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "interval": {
+        "default": "10m",
+        "type": "string"
+      },
+      "name": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "only_logs_after": {
+        "default": "Date of execution at 00:00:00",
+        "type": "string"
+      },
+      "path": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "path_suffix": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "regions": {
+        "default": "All regions",
+        "type": "string"
+      },
+      "remove_from_bucket": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "remove_log_streams": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "run_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "secret_key": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "service_endpoint": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "skip_on_error": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "sqs_name": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "sts_endpoint": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "time": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "wday": {
+        "default": "N/A",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"azure-logs\"": {
+    "additionalProperties": false,
+    "properties": {
+      "day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "graph": {
+        "type": "string"
+      },
+      "id1": {
+        "type": "string"
+      },
+      "interval": {
+        "default": "1d",
+        "type": "string"
+      },
+      "log_analytics": {
+        "type": "string"
+      },
+      "request-options": {
+        "type": "string"
+      },
+      "run_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "storage": {
+        "type": "string"
+      },
+      "time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "timeout": {
+        "default": "0",
+        "type": "string"
+      },
+      "wday": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"command\"": {
+    "additionalProperties": false,
+    "properties": {
+      "command": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "ignore_output": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "2s",
+        "type": "string"
+      },
+      "run_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "skip_verification": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "tag": {
+        "default": "N/A",
+        "type": "string"
+      },
+      "time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "timeout": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "verify_md5": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "verify_sha1": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "verify_sha256": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "wday": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"docker-listener\"": {
+    "additionalProperties": false,
+    "properties": {
+      "attempts": {
+        "default": "5",
+        "type": "string"
+      },
+      "day": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "1m",
+        "type": "string"
+      },
+      "run_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "time": {
+        "default": "n/a",
+        "type": "string"
+      },
+      "wday": {
+        "default": "n/a",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"osquery\"": {
+    "additionalProperties": false,
+    "properties": {
+      "add_labels": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "bin_path": {
+        "type": "string"
+      },
+      "config_path": {
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "log_path": {
+        "type": "string"
+      },
+      "pack": {
+        "default": "Empty",
+        "type": "string"
+      },
+      "run_daemon": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "wodle name=\"syscollector\"": {
+    "additionalProperties": false,
+    "properties": {
+      "browser_extensions": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "disabled": {
+        "default": "no",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "groups": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "hardware": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "hotfixes": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "interval": {
+        "default": "1h",
+        "type": "string"
+      },
+      "max_eps": {
+        "default": "10",
+        "type": "string"
+      },
+      "network": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "os": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "packages": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "ports": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "processes": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "scan_on_start": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "services": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      },
+      "users": {
+        "default": "yes",
+        "enum": [
+          "yes",
+          "no"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  }
+}

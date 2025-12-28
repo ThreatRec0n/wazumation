@@ -1,0 +1,6 @@
+{
+  "log_format": "syslog",
+  "location": "/var/log/auth.log"
+}
+
+
