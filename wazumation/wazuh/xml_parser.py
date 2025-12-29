@@ -5,6 +5,8 @@ from typing import Dict, Any, List, Optional
 from lxml import etree
 import xml.dom.minidom
 
+from wazumation.wazuh.xml_sanitize import extract_first_ossec_config
+
 
 class WazuhXMLParser:
     """Parser for Wazuh XML configuration files."""
@@ -20,9 +22,13 @@ class WazuhXMLParser:
         if not self.config_path.exists():
             return {"sections": {}}
 
+        # Read raw file, sanitize to the first complete <ossec_config> block, then parse from memory.
+        raw_text = self.config_path.read_text(encoding="utf-8", errors="replace")
+        xml_text = extract_first_ossec_config(raw_text)
+
         parser = etree.XMLParser(remove_blank_text=False, strip_cdata=False)
-        self.tree = etree.parse(str(self.config_path), parser)
-        self.root = self.tree.getroot()
+        self.root = etree.fromstring(xml_text.encode("utf-8"), parser=parser)
+        self.tree = etree.ElementTree(self.root)
 
         sections: Dict[str, Any] = {}
         for child in self.root:
