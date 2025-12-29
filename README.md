@@ -1,284 +1,154 @@
-# Wazumation
+## Wazumation
 
-**Production-grade security automation tool for Wazuh configuration management**
+Wazumation is a local-only Python tool that reads and safely manages Wazuh `ossec.conf` configuration.
 
-Wazumation is a local-only Python application that automates Wazuh manager + agent configuration safely.
+## Installation and first-time validation (Ubuntu 24, Python 3.12)
 
-## Threat Model Summary
+This section documents the exact workflow we used during setup and validation.
+We cloned the repository into `/opt/wazumation` and created the virtual environment at `/opt/wazumation/venv` by running the steps below from the repository root.
 
-Wazumation is designed with security-first principles:
-
-1. **Local-only**: No cloud control plane, no remote command execution, no telemetry, no outbound calls by default.
-2. **Explicit privilege**: Operations that require root must prompt for sudo and log the elevation event.
-3. **Immutable audit**: Every action is recorded in an append-only audit log that cannot be deleted from the GUI. Each log entry includes a hash of (previous_entry_hash + current_entry_payload) for tamper-evidence.
-4. **Two-phase apply**: Dry run always available, diff preview before apply, explicit user approval required.
-5. **Config validation gates**: Timestamped backups before changes, validation before service restart, automatic rollback on validation failure.
-6. **No mock data**: All state shown in GUI reflects real filesystem/API reads.
-
-## Installation
-
-### Prerequisites
-
-- Python 3.9 or higher
-- Wazuh manager installed (for full functionality)
-- lxml for XML parsing (required)
-- PySide6 (Qt) for GUI (optional)
-
-### Install from Source
+### 1) Clone and enter repo
 
 ```bash
-# Clone or extract the repository
+git clone https://github.com/<YOUR_GITHUB_USERNAME>/wazumation.git
 cd wazumation
-
-# Install in development mode
-pip install -e .
-
-# Or install with dev dependencies
-pip install -e ".[dev]"
-
-# Optional: install GUI dependencies
-pip install -e ".[gui]"
 ```
 
-### Install Dependencies Only
+### 2) Create and activate venv
 
 ```bash
-pip install lxml>=4.9.0
-# Optional GUI:
-pip install PySide6>=6.6.0
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-## Usage
-
-### GUI Mode
-
-Launch the graphical interface:
+### 3) Install the required python deps in the venv
 
 ```bash
-wazumation-gui
-# or
-python -m wazumation.ui.main
+python -m pip install --upgrade pip
+python -m pip install pytest lxml
 ```
 
-The GUI provides:
-- **Dashboard**: Environment detection, version info, service status
-- **Modules**: Configure each Wazuh plugin/section
-- **Plan & Diff**: Preview changes before applying
-- **Audit Log**: View immutable audit trail (export allowed, delete NOT allowed)
-- **Policy**: Configure retention, approval workflow, module allowlist/denylist
-
-### CLI Mode
+### 4) Confirm interpreter and packages
 
 ```bash
-# Read current configuration
-wazumation read syscheck --config /var/ossec/etc/ossec.conf
-
-# Create a change plan
-wazumation plan syscheck --config /var/ossec/etc/ossec.conf \
-  --desired desired_state.json --output plan.json
-
-# View diff for a plan
-wazumation diff plan.json
-
-# Apply a plan (dry-run)
-wazumation apply plan.json --approve --dry-run --config /var/ossec/etc/ossec.conf
-
-# Apply a plan (real)
-wazumation apply plan.json --approve --config /var/ossec/etc/ossec.conf
-
-# View audit log
-wazumation audit --module syscheck --limit 50
-
-# Verify audit chain integrity
-wazumation verify
+which python
+python -c "import lxml; print(lxml.__version__)"
+python -m pytest --version
 ```
 
-#### Example: Desired State JSON Format
-
-For `syscheck` plugin:
-```json
-{
-  "disabled": "yes",
-  "frequency": "86400",
-  "scan_on_start": "yes"
-}
-```
-
-For `localfile` plugin:
-```json
-{
-  "log_format": "syslog",
-  "location": "/var/log/auth.log"
-}
-```
-
-See `examples/` directory for more examples.
-
-## How Audit Immutability Works
-
-The audit log uses a cryptographic hash chain:
-
-1. Each entry includes:
-   - `entry_id`: Unique identifier
-   - `timestamp`: When the action occurred
-   - `previous_hash`: Hash of the previous entry
-   - `current_hash`: Hash of (previous_hash + current_entry_payload)
-   - `user`, `action`, `module`, `result`, `details`
-
-2. The hash chain ensures:
-   - Any modification to a past entry breaks the chain
-   - Verification detects tampering immediately
-   - Entries cannot be deleted without detection
-
-3. Storage:
-   - Primary: SQLite database (`~/.wazumation/audit.db`)
-   - Export: JSONL format for external analysis
-   - Retention: Configurable (default 30 days)
-
-4. Verification:
-   - Use `wazumation verify` CLI command
-   - Or click "Verify Chain Integrity" in GUI Audit Log tab
-
-## Supported Wazuh Configuration
-
-### ossec.conf coverage (authoritative)
-
-Wazumation implements **every** ossec.conf section listed in the official Wazuh documentation index:
-- Source: `Local configuration (ossec.conf) - Reference (index)` (`https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/index.html`)
-- Committed authoritative list: `data/wazuh_sections.json` (generated by `tools/sync_wazuh_sections.py`)
-- Committed per-section option schemas: `data/wazuh_section_schemas.json` (generated by `tools/scrape_wazuh_section_schema.py`)
-
-You can print the current supported set at any time (this output is generated from the official docs index and must match it exactly):
+### 5) Run tests using the venv python
 
 ```bash
-python -m wazumation.cli.main list-plugins
+python -m pytest -q
 ```
 
-### Plugin System
+Expected result:
 
-Wazumation uses a doc-driven plugin architecture. Each section plugin supports:
-- Reading current configuration state
-- Validating desired state
-- Generating change plans
-- Deterministic plan/diff via normalized states
+```text
+32 passed in 17.96s
+```
 
-Note on filenames: Some section names contain hyphens (valid XML tags) which are not valid Python module names. For those, wrapper modules are generated under `wazumation/wazuh/plugins/generated_sections/` using underscore filenames (e.g. `active-response` → `active_response.py`), while the plugin’s `section_name` remains the exact XML tag.
+### Proof screenshot
 
-### Out of scope
+This repository includes a proof screenshot of the passing test suite:
 
-Wazumation does **not** manage `internal_options.conf` or other non-ossec.conf internal tuning files unless explicitly requested.
+![pytest success proof](screenshots/pytest-success.png)
 
-## How to Add New Plugins
+### 6) Create a clean ossec conf to test parsing
 
-Plugins are modular and easy to extend:
+```bash
+sed -n '1,/<\\/ossec_config>/p' /var/ossec/etc/ossec.conf > /tmp/ossec_fixed.conf
+```
 
-1. Update the authoritative docs list / schemas (if Wazuh docs changed):
+### 7) Validate XML
+
+```bash
+xmllint --noout /tmp/ossec_fixed.conf
+```
+
+No output means success.
+
+### 8) Run the wazumation syscheck reader and show JSON output
+
+```bash
+wazumation read syscheck --config /tmp/ossec_fixed.conf
+```
+
+The output is JSON and no traceback should appear.
+
+### 9) Generate the authoritative Wazuh section list (one-time in a source checkout)
 
 ```bash
 python tools/sync_wazuh_sections.py
-python tools/scrape_wazuh_section_schema.py
 ```
 
-2. Regenerate wrapper modules (optional, for structure/traceability):
+Expected output:
+
+```text
+[OK] Wrote 43 sections to data/wazuh_sections.json
+```
+
+## Troubleshooting
+
+### 1) pytest not found
+
+Symptom:
 
 ```bash
-python tools/generate_all_plugins.py
+pytest -q
 ```
 
-3. The runtime engine is doc-driven (`wazumation/wazuh/plugins/doc_driven.py`). If a section’s doc structure changes, update the scraper/engine accordingly.
-```python
-from typing import Dict, Any, List, Tuple
-from wazumation.wazuh.plugins.base_plugin import BaseWazuhPlugin
+Result:
 
-class MyPlugin(BaseWazuhPlugin):
-    def __init__(self):
-        super().__init__("myplugin", "my_section", ["manager", "agent"])
-    
-    def get_default_state(self) -> Dict[str, Any]:
-        return {"children": {"setting": {"text": "value"}}}
-    
-    def validate(self, state: Dict[str, Any]) -> Tuple[bool, List[str]]:
-        errors = []
-        # Add validation logic
-        return len(errors) == 0, errors
+```text
+pytest: command not found
 ```
 
-2. Register it in `wazumation/wazuh/plugins/__init__.py`:
-
-```python
-from wazumation.wazuh.plugins.my_plugin import MyPlugin
-
-def register_all_plugins(registry):
-    # ... existing registrations ...
-    registry.register(MyPlugin())
-```
-
-3. The plugin automatically appears in the CLI and GUI.
-
-## Supported Wazuh Versions
-
-Wazumation is designed to work with:
-- Wazuh 4.x (primary target)
-- Wazuh 3.x (should work, may need testing)
-
-The tool reads configuration directly from Wazuh's XML files and uses Wazuh's own validation tools (`wazuh-control testconfig`) when available.
-
-## Project Structure
-
-```
-wazumation/
-├── wazumation/
-│   ├── core/           # Core engine: plans, diff, audit, backup, validation, applier
-│   ├── wazuh/          # Wazuh-specific: plugins, XML parser/writer
-│   │   └── plugins/    # Individual configuration plugins
-│   ├── ui/             # PySide6 GUI components
-│   └── cli/            # Command-line interface
-├── tests/              # Unit tests
-└── pyproject.toml      # Project configuration
-```
-
-## Safety Features
-
-1. **Atomic writes**: All file writes use temp file → fsync → rename pattern
-2. **Automatic backups**: Timestamped backups before every change
-3. **Validation gates**: XML validation before and after changes
-4. **Rollback on failure**: Automatic rollback if validation fails
-5. **Read-only mode**: Default mode prevents accidental writes
-6. **Explicit approval**: No changes without user approval
-7. **Sudo logging**: All privilege escalations are logged
-
-## Development
-
-### Running Tests
+Wrong path we tried:
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py"
+sudo apt install python3-pytest
+pytest -q
 ```
 
-### Code Style
+Why it failed:
+
+```text
+Installing pytest via apt does not reliably install it into your Python venv.
+```
+
+Correct fix:
 
 ```bash
-black wazumation/
-mypy wazumation/
+source venv/bin/activate
+python -m pip install pytest
+python -m pytest -q
 ```
 
-## License
+### 2) ModuleNotFoundError: lxml
 
-MIT License
+Symptom:
 
-## Contributing
+```bash
+python -m pytest -q
+```
 
-Contributions welcome! Please ensure:
-- All changes maintain security-first principles
-- Tests are included for new features
-- Audit logging is added for all operations
-- Documentation is updated
+Result:
 
-## Disclaimer
+```text
+ModuleNotFoundError: No module named 'lxml'
+```
 
-Wazumation is a configuration management tool. Always:
-- Test changes in a non-production environment first
-- Review diffs carefully before applying
-- Maintain backups of your Wazuh configuration
-- Understand the impact of configuration changes on your security posture
+Correct fix:
+
+```bash
+source venv/bin/activate
+python -m pip install lxml
+python -m pytest -q
+```
+
+## Repo hygiene
+
+1) `requirements.txt` includes the minimum required packages used in validation.
+2) `.gitignore` excludes virtual environments, caches, and common Python build artifacts.
 
