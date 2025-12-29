@@ -104,11 +104,11 @@ def _normalize_section_dict(section_dict: Dict[str, Any]) -> Dict[str, Any]:
     """
     out: Dict[str, Any] = {}
     attrs = section_dict.get("attributes") or {}
-    for k in sorted(attrs.keys()):
+    for k in sorted([k for k in attrs.keys() if isinstance(k, str)]):
         out[f"@{k}"] = str(attrs[k])
 
     children = section_dict.get("children") or {}
-    for k in sorted(children.keys()):
+    for k in sorted([k for k in children.keys() if isinstance(k, str)]):
         v = children[k]
         if isinstance(v, list):
             items = []

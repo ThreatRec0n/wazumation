@@ -26,12 +26,21 @@ class WazuhXMLParser:
         raw_text = self.config_path.read_text(encoding="utf-8", errors="replace")
         xml_text = extract_first_ossec_config(raw_text)
 
-        parser = etree.XMLParser(remove_blank_text=False, strip_cdata=False)
+        # Defensive parsing: ignore comments and processing instructions, and only treat true
+        # element nodes as sections/children.
+        parser = etree.XMLParser(
+            remove_blank_text=False,
+            strip_cdata=False,
+            remove_comments=True,
+            remove_pis=True,
+        )
         self.root = etree.fromstring(xml_text.encode("utf-8"), parser=parser)
         self.tree = etree.ElementTree(self.root)
 
         sections: Dict[str, Any] = {}
         for child in self.root:
+            if not isinstance(child.tag, str):
+                continue
             section_name = child.tag
             value = self._element_to_dict(child)
             # Preserve repeated sections (e.g., multiple <localfile> blocks) deterministically.
@@ -62,6 +71,8 @@ class WazuhXMLParser:
         # Handle children
         children = {}
         for child in element:
+            if not isinstance(child.tag, str):
+                continue
             child_name = child.tag
             if child_name in children:
                 # Multiple children with same name -> make it a list

@@ -6,6 +6,14 @@ All commands require `--config` to specify the Wazuh configuration file path (de
 
 ## Commands
 
+### One-time: sync authoritative plugin list (repo checkout)
+
+If you are running from a fresh source checkout and `data/wazuh_sections.json` is missing, generate it:
+
+```bash
+python3 tools/sync_wazuh_sections.py
+```
+
 ### `list-plugins` - List supported ossec.conf sections
 
 Prints every supported section/plugin name derived from the official Wazuh ossec.conf reference index.
@@ -14,7 +22,7 @@ Prints every supported section/plugin name derived from the official Wazuh ossec
 python -m wazumation.cli.main list-plugins
 ```
 
-Output format: `<section>\t<supported_installations>`
+Output format: `<section>`
 
 ---
 

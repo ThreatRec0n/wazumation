@@ -55,6 +55,43 @@ class TestCLI(unittest.TestCase):
         self.assertIn("disabled", output)
         self.assertEqual(output["disabled"], "no")
 
+    def test_read_syscheck_with_comments_and_processing_instruction(self):
+        """Regression: lxml comment/PI nodes must not break normalization/sorting."""
+        config_file = self.temp_path / "ossec_with_comments.conf"
+        config_file.write_text(
+            """<?xml version="1.0"?>
+<ossec_config>
+  <!-- top-level comment like real Wazuh config -->
+  <syscheck>
+    <!-- comment inside section -->
+    <?wazuh pi?>
+    <disabled>no</disabled>
+    <frequency>43200</frequency>
+  </syscheck>
+</ossec_config>
+""",
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "wazumation.cli.main",
+                "--config",
+                str(config_file),
+                "--data-dir",
+                str(self.data_dir),
+                "read",
+                "syscheck",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual(output.get("disabled"), "no")
+
     def test_plan_command(self):
         """Test plan command."""
         desired_state = {"disabled": "yes", "frequency": "86400"}
