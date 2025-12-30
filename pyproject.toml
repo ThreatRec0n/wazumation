@@ -40,6 +40,13 @@ gui = []
 wazumation = "wazumation.cli.main:main"
 wazumation-gui = "wazumation.features.gui_entry:main"
 
+[tool.setuptools.package-data]
+wazumation = [
+    "data/*.json",
+    "data/*.yaml",
+    "data/*.yml",
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["wazumation*"]

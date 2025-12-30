@@ -2,6 +2,7 @@
 
 import subprocess
 import os
+import re
 import shutil
 import time
 from pathlib import Path
@@ -29,28 +30,57 @@ class ConfigValidator:
         """
         Automatically fix common XML issues in ossec.conf.
 
-        Currently supported:
+        More aggressive fixing for production use.
+
+        Currently supported (best-effort):
         - Extra content after the last </ossec_config>
-        - Multiple <ossec_config> blocks (keeps the first full block)
+        - Multiple <ossec_config> blocks (keeps the last full block)
+        - Duplicate </ossec_config> tags
         """
         try:
             content = config_path.read_text(encoding="utf-8", errors="replace")
-            start = content.find("<ossec_config")
-            end = content.rfind("</ossec_config>")
-            if start == -1 or end == -1:
-                return False, "No <ossec_config>...</ossec_config> block found"
+            original_content = content
 
-            end_pos = end + len("</ossec_config>")
-            cleaned = content[start:end_pos] + "\n"
+            close_tag = "</ossec_config>"
 
-            # If nothing changes, no-op
-            if cleaned == content:
-                return False, "No common XML issues found"
+            # Fix 1: Remove everything after last </ossec_config>
+            last_tag_pos = content.rfind(close_tag)
+            if last_tag_pos == -1:
+                return False, "No </ossec_config> tag found"
+
+            end_pos = last_tag_pos + len(close_tag)
+            clean_content = content[:end_pos].rstrip() + "\n"
+
+            # Fix 2: If multiple <ossec_config ...> openings exist, keep only the last full block.
+            opens = list(re.finditer(r"<ossec_config\b[^>]*>", clean_content, flags=re.IGNORECASE))
+            if len(opens) > 1:
+                clean_content = clean_content[opens[-1].start() :].lstrip()
+
+            # Fix 3: Remove any duplicate </ossec_config> tags (keep only the final one).
+            last_close = clean_content.lower().rfind(close_tag)
+            if last_close != -1:
+                before = clean_content[:last_close]
+                before = re.sub(r"</ossec_config>\s*", "", before, flags=re.IGNORECASE)
+                clean_content = before.rstrip() + "\n" + close_tag + "\n"
+
+            # Fix 4: Ensure proper XML structure (exactly one opening and one closing tag).
+            opening_count = len(re.findall(r"<ossec_config\b", clean_content, flags=re.IGNORECASE))
+            closing_count = len(re.findall(r"</ossec_config>", clean_content, flags=re.IGNORECASE))
+            if opening_count != 1 or closing_count != 1:
+                return False, f"Mismatched tags: {opening_count} opening, {closing_count} closing"
+
+            # Only write if we actually changed something
+            if clean_content == original_content:
+                return False, "No issues found"
 
             backup_path = config_path.with_name(f"{config_path.name}.backup.{int(time.time())}")
             shutil.copy2(str(config_path), str(backup_path))
-            config_path.write_text(cleaned, encoding="utf-8")
-            return True, f"Fixed: Removed extra content / extra blocks. Backup: {backup_path}"
+            config_path.write_text(clean_content, encoding="utf-8")
+
+            removed_bytes = len(original_content.encode("utf-8", errors="ignore")) - len(
+                clean_content.encode("utf-8", errors="ignore")
+            )
+            return True, f"Fixed: Removed {removed_bytes} bytes of extra content. Backup: {backup_path}"
         except Exception as e:
             return False, f"Auto-fix failed: {e}"
 

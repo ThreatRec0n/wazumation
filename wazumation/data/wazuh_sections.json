@@ -1,0 +1,432 @@
+[
+  {
+    "identifier": "active-response",
+    "section_tag": "active-response",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "agent-upgrade",
+    "section_tag": "agent-upgrade",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/agent-upgrade.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "agentless",
+    "section_tag": "agentless",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/agentless.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "alerts",
+    "section_tag": "alerts",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/alerts.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "anti_tampering",
+    "section_tag": "anti_tampering",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/anti-tampering.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "auth",
+    "section_tag": "auth",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/auth.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "client",
+    "section_tag": "client",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/client.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "client_buffer",
+    "section_tag": "client_buffer",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/client-buffer.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "cluster",
+    "section_tag": "cluster",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/cluster.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "command",
+    "section_tag": "command",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/commands.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "database_output",
+    "section_tag": "database_output",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/database-output.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "email_alerts",
+    "section_tag": "email_alerts",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/email-alerts.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "fluent-forward",
+    "section_tag": "fluent-forward",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/fluent-forward.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "gcp-bucket",
+    "section_tag": "gcp-bucket",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-bucket.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "gcp-pubsub",
+    "section_tag": "gcp-pubsub",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "github",
+    "section_tag": "github",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/github-module.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "global",
+    "section_tag": "global",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/global.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "indexer",
+    "section_tag": "indexer",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/indexer.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "integration",
+    "section_tag": "integration",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/integration.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "labels",
+    "section_tag": "labels",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/labels.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "localfile",
+    "section_tag": "localfile",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "logging",
+    "section_tag": "logging",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/logging.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "ms-graph",
+    "section_tag": "ms-graph",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/ms-graph-module.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "office365",
+    "section_tag": "office365",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/office365-module.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "remote",
+    "section_tag": "remote",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "reports",
+    "section_tag": "reports",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/reports.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "rootcheck",
+    "section_tag": "rootcheck",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/rootcheck.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "rule_test",
+    "section_tag": "rule_test",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/rule-test.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "ruleset",
+    "section_tag": "ruleset",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/ruleset.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "sca",
+    "section_tag": "sca",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/sca.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "socket",
+    "section_tag": "socket",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/socket.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "syscheck",
+    "section_tag": "syscheck",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "syslog_output",
+    "section_tag": "syslog_output",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syslog-output.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "task-manager",
+    "section_tag": "task-manager",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/task-manager.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "vulnerability-detection",
+    "section_tag": "vulnerability-detection",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/vuln-detector.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "wazuh_db",
+    "section_tag": "wazuh_db",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wazuh-db-config.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": null
+  },
+  {
+    "identifier": "wodle name=\"agent-key-polling\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-agent-key-polling.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "agent-key-polling"
+  },
+  {
+    "identifier": "wodle name=\"aws-s3\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-s3.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "aws-s3"
+  },
+  {
+    "identifier": "wodle name=\"azure-logs\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-azure-logs.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "azure-logs"
+  },
+  {
+    "identifier": "wodle name=\"command\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-command.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "command"
+  },
+  {
+    "identifier": "wodle name=\"docker-listener\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-docker.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "docker-listener"
+  },
+  {
+    "identifier": "wodle name=\"osquery\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-osquery.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "osquery"
+  },
+  {
+    "identifier": "wodle name=\"syscollector\"",
+    "section_tag": "wodle",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-syscollector.html",
+    "supported_installations": [
+      "manager",
+      "agent"
+    ],
+    "wodle_name": "syscollector"
+  }
+]

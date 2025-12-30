@@ -1,0 +1,6 @@
+include wazumation/data/*.json
+include wazumation/data/*.yaml
+include wazumation/data/*.yml
+recursive-include wazumation/data *
+
+

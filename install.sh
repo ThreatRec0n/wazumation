@@ -99,7 +99,23 @@ if command -v xmllint >/dev/null 2>&1 && [ -f "$OSSEC_CONF" ]; then
   if ! xmllint --noout "$OSSEC_CONF" >/dev/null 2>&1; then
     log_warn "Detected XML issues in $OSSEC_CONF"
     log_info "Attempting auto-fix..."
-    wazumation --fix-xml >/dev/null 2>&1 || true
+
+    # Run the fix command (keep output on screen + save to log)
+    if wazumation --fix-xml 2>&1 | tee /tmp/wazumation-fix.log; then
+      log_success "Auto-fix completed"
+      if xmllint --noout "$OSSEC_CONF" >/dev/null 2>&1; then
+        log_success "Configuration is now valid"
+      else
+        log_error "Auto-fix didn't fully resolve the issue"
+        log_info "Manual fix required. See: /tmp/wazumation-fix.log"
+        xmllint --noout "$OSSEC_CONF" 2>&1 | head -5 || true
+      fi
+    else
+      log_error "Auto-fix failed"
+      log_info "Manual fix required. See: /tmp/wazumation-fix.log"
+    fi
+  else
+    log_success "Configuration is valid"
   fi
 fi
 

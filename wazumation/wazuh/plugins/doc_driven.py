@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from importlib import resources as importlib_resources
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -33,22 +34,46 @@ def _repo_data_path(filename: str) -> Optional[Path]:
     return None
 
 
+def _package_data_text(filename: str) -> Optional[str]:
+    """
+    Read packaged data files from `wazumation/data/` (wheel/venv friendly).
+
+    Returns the file contents if present, otherwise None.
+    """
+    try:
+        traversable = importlib_resources.files("wazumation").joinpath(f"data/{filename}")
+        if traversable.is_file():
+            return traversable.read_text(encoding="utf-8")
+    except Exception:
+        return None
+    return None
+
+
 def load_section_schema(identifier: str) -> Dict[str, Any]:
     path = _repo_data_path("wazuh_section_schemas.json")
-    if not path:
-        raise FileNotFoundError(
-            "Missing wazuh_section_schemas.json. Run tools/sync_wazuh_sections.py and "
-            "tools/scrape_wazuh_section_schema.py, or ensure data/ is present."
-        )
-    all_schemas = json.loads(path.read_text(encoding="utf-8"))
+    if path:
+        all_schemas = json.loads(path.read_text(encoding="utf-8"))
+    else:
+        text = _package_data_text("wazuh_section_schemas.json")
+        if not text:
+            raise FileNotFoundError(
+                "Missing wazuh_section_schemas.json. Ensure the package data files were installed "
+                "(wazumation/data/*.json), or in a source checkout run tools/sync_wazuh_sections.py and "
+                "tools/scrape_wazuh_section_schema.py."
+            )
+        all_schemas = json.loads(text)
     return all_schemas.get(identifier, {"type": "object", "properties": {}, "additionalProperties": True})
 
 
 def load_section_metadata(identifier: str) -> Dict[str, Any]:
     path = _repo_data_path("wazuh_section_metadata.json")
-    if not path:
-        return {}
-    meta = json.loads(path.read_text(encoding="utf-8"))
+    if path:
+        meta = json.loads(path.read_text(encoding="utf-8"))
+    else:
+        text = _package_data_text("wazuh_section_metadata.json")
+        if not text:
+            return {}
+        meta = json.loads(text)
     return meta.get(identifier, {})
 
 

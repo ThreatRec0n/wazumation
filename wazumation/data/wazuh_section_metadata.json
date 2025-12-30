@@ -1,0 +1,217 @@
+{
+  "active-response": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "active-response",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/active-response.html"
+  },
+  "agent-upgrade": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "agent-upgrade",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/agent-upgrade.html"
+  },
+  "agentless": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "agentless",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/agentless.html"
+  },
+  "alerts": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "alerts",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/alerts.html"
+  },
+  "anti_tampering": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "anti_tampering",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/anti-tampering.html"
+  },
+  "auth": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "auth",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/auth.html"
+  },
+  "client": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "client",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/client.html"
+  },
+  "client_buffer": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "client_buffer",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/client-buffer.html"
+  },
+  "cluster": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "cluster",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/cluster.html"
+  },
+  "command": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "command",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/commands.html"
+  },
+  "database_output": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "database_output",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/database-output.html"
+  },
+  "email_alerts": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "email_alerts",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/email-alerts.html"
+  },
+  "fluent-forward": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "fluent-forward",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/fluent-forward.html"
+  },
+  "gcp-bucket": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "gcp-bucket",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-bucket.html"
+  },
+  "gcp-pubsub": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "gcp-pubsub",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html"
+  },
+  "github": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "github",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/github-module.html"
+  },
+  "global": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "global",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/global.html"
+  },
+  "indexer": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "indexer",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/indexer.html"
+  },
+  "integration": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "integration",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/integration.html"
+  },
+  "labels": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "labels",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/labels.html"
+  },
+  "localfile": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "localfile",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html"
+  },
+  "logging": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "logging",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/logging.html"
+  },
+  "ms-graph": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "ms-graph",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/ms-graph-module.html"
+  },
+  "office365": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "office365",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/office365-module.html"
+  },
+  "remote": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "remote",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html"
+  },
+  "reports": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "reports",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/reports.html"
+  },
+  "rootcheck": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "rootcheck",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/rootcheck.html"
+  },
+  "rule_test": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "rule_test",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/rule-test.html"
+  },
+  "ruleset": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "ruleset",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/ruleset.html"
+  },
+  "sca": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "sca",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/sca.html"
+  },
+  "socket": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "socket",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/socket.html"
+  },
+  "syscheck": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "syscheck",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html"
+  },
+  "syslog_output": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "syslog_output",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syslog-output.html"
+  },
+  "task-manager": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "task-manager",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/task-manager.html"
+  },
+  "vulnerability-detection": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "vulnerability-detection",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/vuln-detector.html"
+  },
+  "wazuh_db": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wazuh_db",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wazuh-db-config.html"
+  },
+  "wodle name=\"agent-key-polling\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"agent-key-polling\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-agent-key-polling.html"
+  },
+  "wodle name=\"aws-s3\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"aws-s3\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-s3.html"
+  },
+  "wodle name=\"azure-logs\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"azure-logs\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-azure-logs.html"
+  },
+  "wodle name=\"command\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"command\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-command.html"
+  },
+  "wodle name=\"docker-listener\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"docker-listener\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-docker.html"
+  },
+  "wodle name=\"osquery\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"osquery\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-osquery.html"
+  },
+  "wodle name=\"syscollector\"": {
+    "restart_guidance": "restarting the wazuh agent with active response",
+    "section_name": "wodle name=\"syscollector\"",
+    "source_url": "https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-syscollector.html"
+  }
+}
