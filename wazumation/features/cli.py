@@ -95,8 +95,15 @@ def cmd_enable_disable(
 
     st = FeatureState.load(state_path)
 
-    enable_feats = [reg[x] for x in enable if x not in st.enabled]
-    disable_feats = [reg[x] for x in disable if x in st.enabled]
+    # IMPORTANT: Use *live detection* to decide whether changes are needed.
+    # The state file is best-effort and can drift (e.g. manual edits, restores, failed restarts).
+    detected = detect_feature_states(config_path)
+
+    def _is_live_enabled(fid: str) -> bool:
+        return detected.get(fid, {}).get("status") in ("enabled", "partial")
+
+    enable_feats = [reg[x] for x in enable if not _is_live_enabled(x)]
+    disable_feats = [reg[x] for x in disable if _is_live_enabled(x)]
 
     # Capture restore snapshot for features being enabled (best-effort safe revert).
     # For schema-driven features, capture existing values for the relevant keys so disable can restore.
@@ -198,6 +205,14 @@ def cmd_enable_disable(
 
     if plan.is_empty():
         print("No changes needed.")
+        # Still sync the state file to the user's requested toggles to avoid future drift.
+        for fid in enable:
+            if fid in reg:
+                st.enabled.setdefault(fid, {})
+        for fid in disable:
+            st.enabled.pop(fid, None)
+        st.modified_files = sorted({*(st.modified_files or []), str(config_path)})
+        st.save(state_path)
         return 0
 
     # Honor dry-run regardless of how the applier was constructed (GUI may reuse a non-dry-run applier).

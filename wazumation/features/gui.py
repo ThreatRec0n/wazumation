@@ -93,7 +93,9 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
     tree.pack(fill="both", expand=True)
 
     # Desired state toggles
-    desired_enabled: Dict[str, bool] = {fid: (fid in st.enabled) for fid in reg.keys()}
+    # Desired toggles (what user wants). Bootstrap from *live detection* on first load.
+    desired_enabled: Dict[str, bool] = {fid: False for fid in reg.keys()}
+    desired_initialized = False
 
     # Right: details + schema-driven config form
     title_lbl = ttk.Label(right, text="Select a feature", font=("Segoe UI", 14, "bold"))
@@ -166,6 +168,7 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
 
     def populate_tree():
         nonlocal detected_cache
+        nonlocal desired_initialized
         detected_cache = load_detection()
         tree.delete(*tree.get_children())
         q = search_var.get().strip().lower()
@@ -175,6 +178,12 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
                 continue
             stt = detected_cache.get(fid, {}).get("status", "unknown")
             tree.insert("", "end", iid=fid, values=(stt, f"{fid} — {f.title}"))
+
+        # Bootstrap desired toggles from live detection once per GUI session.
+        if not desired_initialized:
+            for fid in reg.keys():
+                desired_enabled[fid] = detected_cache.get(fid, {}).get("status") == "enabled"
+            desired_initialized = True
 
     def validate_current_fields() -> Optional[str]:
         if not current_feature_id:
@@ -313,8 +322,17 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
             messagebox.showerror("Approval required", "Check 'Approve apply' to perform real changes.")
             return
 
-        enable_ids = [fid for fid, desired in desired_enabled.items() if desired and fid not in st.enabled]
-        disable_ids = [fid for fid, desired in desired_enabled.items() if (not desired) and fid in st.enabled]
+        # Decide what to change based on *live detection* (state file can drift).
+        enable_ids = [
+            fid
+            for fid, desired in desired_enabled.items()
+            if desired and detected_cache.get(fid, {}).get("status") != "enabled"
+        ]
+        disable_ids = [
+            fid
+            for fid, desired in desired_enabled.items()
+            if (not desired) and detected_cache.get(fid, {}).get("status") in ("enabled", "partial")
+        ]
 
         def _work():
             try:
@@ -420,9 +438,69 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
 
         run_in_thread(_work)
 
+    def _daemon_reload():
+        def _work():
+            root.after(0, lambda: log("Reloading systemd daemon..."))
+            ok, msg = WazuhServiceManager.daemon_reload()
+            root.after(0, lambda: log(("✓ " if ok else "✗ ") + msg))
+            if not ok:
+                root.after(0, lambda: handle_service_error(msg))
+            root.after(1000, refresh_wazuh_status)
+
+        run_in_thread(_work)
+
+    def _show_logs():
+        import tkinter as tk  # type: ignore
+        from tkinter import ttk  # type: ignore
+        from tkinter import scrolledtext  # type: ignore
+
+        win = tk.Toplevel(root)
+        win.title("Wazuh Logs")
+        win.geometry("950x650")
+
+        nb = ttk.Notebook(win)
+        nb.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Tab 1: systemd journal
+        f1 = ttk.Frame(nb)
+        nb.add(f1, text="systemd Journal")
+        t1 = scrolledtext.ScrolledText(f1, wrap="word", bg="#111", fg="#eee", font=("Consolas", 9))
+        t1.pack(fill="both", expand=True)
+        try:
+            r = subprocess.run(
+                ["journalctl", "-xeu", "wazuh-manager", "-n", "200", "--no-pager"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            t1.insert("1.0", r.stdout or r.stderr or "(no output)")
+        except Exception as e:
+            t1.insert("1.0", f"Error fetching journalctl: {e}")
+        t1.configure(state="disabled")
+
+        # Tab 2: ossec.log
+        f2 = ttk.Frame(nb)
+        nb.add(f2, text="ossec.log")
+        t2 = scrolledtext.ScrolledText(f2, wrap="word", bg="#111", fg="#eee", font=("Consolas", 9))
+        t2.pack(fill="both", expand=True)
+        try:
+            p = Path("/var/ossec/logs/ossec.log")
+            if p.exists():
+                lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+                t2.insert("1.0", "\n".join(lines[-200:]))
+            else:
+                t2.insert("1.0", f"File not found: {p}")
+        except Exception as e:
+            t2.insert("1.0", f"Error reading ossec.log: {e}")
+        t2.configure(state="disabled")
+
+        ttk.Button(win, text="Close", command=win.destroy).pack(pady=(0, 10))
+
+    ttk.Button(btn_row, text="Reload Daemon", command=_daemon_reload).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Start Wazuh", command=_start_service).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Stop Wazuh", command=_stop_service).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Restart Wazuh", command=_restart_service).pack(side="left", padx=(8, 0))
+    ttk.Button(btn_row, text="Logs", command=_show_logs).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Enable Selected", command=lambda: set_desired(True)).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Disable Selected", command=lambda: set_desired(False)).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Diff", command=do_diff).pack(side="left", padx=(8, 0))

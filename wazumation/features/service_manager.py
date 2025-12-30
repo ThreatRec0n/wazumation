@@ -28,6 +28,26 @@ class WazuhServiceManager:
         return os.name == "posix" and shutil.which("systemctl") is not None
 
     @classmethod
+    def daemon_reload(cls) -> Tuple[bool, str]:
+        """Best-effort reload of systemd unit files."""
+        if not cls._systemctl_available():
+            return False, "systemctl not available"
+        try:
+            result = subprocess.run(
+                ["systemctl", "daemon-reload"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if result.returncode != 0:
+                return False, f"daemon-reload failed: {(result.stderr or '').strip()}"
+            return True, "daemon-reload completed"
+        except subprocess.TimeoutExpired:
+            return False, "daemon-reload timed out"
+        except Exception as e:
+            return False, f"daemon-reload error: {e}"
+
+    @classmethod
     def is_running(cls) -> bool:
         """Check if Wazuh is currently running."""
         if not cls._systemctl_available():
@@ -90,6 +110,8 @@ class WazuhServiceManager:
         if not cls._systemctl_available():
             return False, "systemctl not available"
         try:
+            # CRITICAL: systemd sometimes requires daemon-reload before service ops.
+            cls.daemon_reload()
             logger.info("Starting Wazuh service...")
             result = subprocess.run(
                 ["systemctl", "start", cls.SERVICE_NAME],
@@ -115,6 +137,8 @@ class WazuhServiceManager:
         if not cls._systemctl_available():
             return False, "systemctl not available"
         try:
+            # Best-effort daemon-reload (doesn't hurt, but may fix unit-change warnings).
+            cls.daemon_reload()
             logger.info("Stopping Wazuh service...")
             result = subprocess.run(
                 ["systemctl", "stop", cls.SERVICE_NAME],
@@ -136,6 +160,9 @@ class WazuhServiceManager:
         """Restart Wazuh service with smart handling."""
         if not cls._systemctl_available():
             return False, "systemctl not available"
+
+        # CRITICAL: systemd sometimes requires daemon-reload before service ops.
+        cls.daemon_reload()
 
         # If stopped, start instead of restart (avoids noisy failures in some systemd setups).
         if not cls.is_running():
@@ -169,7 +196,7 @@ class WazuhServiceManager:
             return False, "systemctl not available"
         try:
             logger.info("Reloading Wazuh configuration...")
-            subprocess.run(["systemctl", "daemon-reload"], capture_output=True, timeout=10)
+            cls.daemon_reload()
 
             result = subprocess.run(
                 ["systemctl", "reload", cls.SERVICE_NAME],
