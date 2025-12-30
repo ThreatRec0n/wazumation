@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional
 
 from wazumation.wazuh.xml_parser import WazuhXMLParser
+from wazumation.features.registry import get_feature_registry
 
 
 FeatureStatus = Literal["enabled", "disabled", "partial"]
@@ -51,62 +51,84 @@ def detect_feature_states(config_path: Path) -> Dict[str, Dict[str, Any]]:
     data = parser.parse()
     sections = data.get("sections", {})
 
+    reg = get_feature_registry()
+    instances = _localfile_instances(sections)
+
     states: Dict[str, Dict[str, Any]] = {}
 
-    # fim-enhanced: syscheck scan_on_start=yes and whodata=yes
-    syscheck = sections.get("syscheck")
-    syscheck_dict = syscheck if isinstance(syscheck, dict) else (syscheck[0] if isinstance(syscheck, list) and syscheck else None)
-    scan = _get_child_text(syscheck_dict, "scan_on_start") if isinstance(syscheck_dict, dict) else None
-    who = _get_child_text(syscheck_dict, "whodata") if isinstance(syscheck_dict, dict) else None
-    enabled_count = sum([scan == "yes", who == "yes"])
-    if enabled_count == 2:
-        st: FeatureStatus = "enabled"
-    elif enabled_count == 0:
-        st = "disabled"
-    else:
-        st = "partial"
-    states["fim-enhanced"] = {"status": st, "evidence": {"scan_on_start": scan, "whodata": who}}
+    def _section_dict(tag: str) -> Optional[Dict[str, Any]]:
+        sec = sections.get(tag)
+        if isinstance(sec, dict):
+            return sec
+        if isinstance(sec, list) and sec and isinstance(sec[0], dict):
+            return sec[0]
+        return None
 
-    # auditd-monitoring: localfile instance audit + /var/log/audit/audit.log
-    instances = _localfile_instances(sections)
-    audit_present = any(i["log_format"] == "audit" and i["location"] == "/var/log/audit/audit.log" for i in instances)
-    states["auditd-monitoring"] = {"status": "enabled" if audit_present else "disabled", "evidence": {"instances": instances}}
+    for fid, feat in reg.items():
+        matches = 0
+        total = 0
+        evidence: Dict[str, Any] = {}
+        values: Dict[str, Any] = {}
 
-    # selftest-probe: localfile instance syslog + /var/ossec/logs/wazumation-selftest.log
+        # Extract schema values for prefill (best-effort).
+        for fs in feat.config_schema:
+            if fs.ossec_section and fs.ossec_key:
+                sd = _section_dict(fs.ossec_section)
+                v = _get_child_text(sd, fs.ossec_key) if isinstance(sd, dict) else None
+                if v is not None:
+                    values[fs.name] = v
+
+        # Evaluate actions for enabled/partial/disabled.
+        for action in feat.actions:
+            section = action.get("section")
+            if "desired" in action:
+                desired = action.get("desired") or {}
+                total += len(desired)
+                sd = _section_dict(section)
+                for k, expected in desired.items():
+                    got = _get_child_text(sd, k) if isinstance(sd, dict) else None
+                    evidence.setdefault(section, {})[k] = got
+                    if got == str(expected):
+                        matches += 1
+            elif "ensure_instance" in action and section == "localfile":
+                total += 1
+                inst = action["ensure_instance"]
+                present = any(i.get("log_format") == inst.get("log_format") and i.get("location") == inst.get("location") for i in instances)
+                evidence["localfile_instances"] = instances
+                if present:
+                    matches += 1
+            elif "desired_from_values" in action:
+                # Detection: treat as enabled if all targeted keys exist (non-empty).
+                keys = list((action.get("desired_from_values") or {}).keys())
+                total += len(keys)
+                sd = _section_dict(section)
+                for ossec_key in keys:
+                    got = _get_child_text(sd, ossec_key) if isinstance(sd, dict) else None
+                    evidence.setdefault(section, {})[ossec_key] = got
+                    if got is not None and str(got).strip() != "":
+                        matches += 1
+
+        if total == 0:
+            status: FeatureStatus = "disabled"
+        elif matches == 0:
+            status = "disabled"
+        elif matches == total:
+            status = "enabled"
+        else:
+            status = "partial"
+
+        states[fid] = {"status": status, "evidence": evidence, "values": values}
+
+    # Special: selftest-probe status is derived from a specific localfile instance.
     probe_present = any(
-        i["log_format"] == "syslog" and i["location"] == "/var/ossec/logs/wazumation-selftest.log" for i in instances
+        i.get("log_format") == "syslog" and i.get("location") == "/var/ossec/logs/wazumation-selftest.log"
+        for i in instances
     )
-    states["selftest-probe"] = {"status": "enabled" if probe_present else "disabled", "evidence": {"instances": instances}}
-
-    # vuln-detector: vulnerability-detection enabled=yes
-    vd = sections.get("vulnerability-detection")
-    vd_dict = vd if isinstance(vd, dict) else (vd[0] if isinstance(vd, list) and vd else None)
-    vd_enabled = _get_child_text(vd_dict, "enabled") if isinstance(vd_dict, dict) else None
-    states["vuln-detector"] = {"status": "enabled" if vd_enabled == "yes" else "disabled", "evidence": {"enabled": vd_enabled}}
-
-    # sca-cis: sca enabled=yes
-    sca = sections.get("sca")
-    sca_dict = sca if isinstance(sca, dict) else (sca[0] if isinstance(sca, list) and sca else None)
-    sca_enabled = _get_child_text(sca_dict, "enabled") if isinstance(sca_dict, dict) else None
-    states["sca-cis"] = {"status": "enabled" if sca_enabled == "yes" else "disabled", "evidence": {"enabled": sca_enabled}}
-
-    # localfile-nginx: localfile instance apache + /var/log/nginx/access.log
-    nginx_present = any(i["log_format"] == "apache" and i["location"] == "/var/log/nginx/access.log" for i in instances)
-    states["localfile-nginx"] = {"status": "enabled" if nginx_present else "disabled", "evidence": {"instances": instances}}
-
-    # email-alerts: global email_notification=yes and smtp_server/email_to/email_from set
-    g = sections.get("global")
-    g_dict = g if isinstance(g, dict) else (g[0] if isinstance(g, list) and g else None)
-    email_notification = _get_child_text(g_dict, "email_notification") if isinstance(g_dict, dict) else None
-    smtp = _get_child_text(g_dict, "smtp_server") if isinstance(g_dict, dict) else None
-    email_from = _get_child_text(g_dict, "email_from") if isinstance(g_dict, dict) else None
-    email_to = _get_child_text(g_dict, "email_to") if isinstance(g_dict, dict) else None
-    if email_notification == "yes" and smtp and email_from and email_to:
-        states["email-alerts"] = {"status": "enabled", "evidence": {"smtp_server": smtp, "email_from": email_from, "email_to": email_to}}
-    elif email_notification == "yes" and (smtp or email_from or email_to):
-        states["email-alerts"] = {"status": "partial", "evidence": {"smtp_server": smtp, "email_from": email_from, "email_to": email_to}}
-    else:
-        states["email-alerts"] = {"status": "disabled", "evidence": {"smtp_server": smtp, "email_from": email_from, "email_to": email_to}}
+    states["selftest-probe"] = {
+        "status": "enabled" if probe_present else "disabled",
+        "evidence": {"localfile_instances": instances},
+        "values": {},
+    }
 
     return states
 

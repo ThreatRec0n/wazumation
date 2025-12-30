@@ -7,6 +7,7 @@ from pathlib import Path
 
 from wazumation.core.audit import AuditChain, AuditLogger, AuditResult
 from wazumation.core.backup import BackupManager
+from wazumation.core.config_paths import detect_ossec_conf_path
 from wazumation.core.validator import ConfigValidator
 from wazumation.core.applier import PlanApplier
 from wazumation.core.diff import DiffEngine
@@ -29,7 +30,7 @@ def main():
     parser.add_argument(
         "--config",
         type=Path,
-        default=Path("/var/ossec/etc/ossec.conf"),
+        default=None,
         help="Path to ossec.conf",
     )
     parser.add_argument(
@@ -143,10 +144,18 @@ def main():
         state_path = default_state_path()
         enable_list = [x.strip() for x in (args.enable or "").split(",") if x.strip()]
         disable_list = [x.strip() for x in (args.disable or "").split(",") if x.strip()]
+        needs_config = bool(args.status) or bool(args.gui) or bool(args.self_test) or bool(enable_list or disable_list)
+        if needs_config:
+            try:
+                args.config = detect_ossec_conf_path(config_override=args.config, state_path=state_path)
+            except Exception as e:
+                print(str(e), file=sys.stderr)
+                sys.exit(1)
 
         if args.list:
             sys.exit(cmd_list_features())
         if args.status:
+            print(f"Config: {args.config}", file=sys.stderr)
             sys.exit(cmd_status(state_path, args.config))
         if args.diff_feature:
             sys.exit(cmd_diff(args.diff_feature, state_path, data_dir))
@@ -159,7 +168,7 @@ def main():
                 # as a hard safety net for unusual environments.
                 if str(e).strip("'\"") in ("tkinter",):
                     print(
-                        "GUI requires python3-tk. Install with: sudo apt install python3-tk",
+                        "GUI requires python3-tk. Install: sudo apt-get update && sudo apt-get install -y python3-tk",
                         file=sys.stderr,
                     )
                     sys.exit(1)
@@ -174,10 +183,12 @@ def main():
                 )
             )
         if args.self_test:
+            print(f"Config: {args.config}", file=sys.stderr)
             res = run_self_test(config_path=args.config, data_dir=data_dir, applier=applier, validator=validator)
             print(res.render())
             sys.exit(0 if res.passed else 1)
         if enable_list or disable_list:
+            print(f"Config: {args.config}", file=sys.stderr)
             sys.exit(
                 cmd_enable_disable(
                     config_path=args.config,
@@ -196,6 +207,12 @@ def main():
         sys.exit(0)
 
     if args.command == "read":
+        state_path = default_state_path()
+        try:
+            args.config = detect_ossec_conf_path(config_override=args.config, state_path=state_path)
+        except Exception as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
         module = args.module
         if module == "wazuh-db":
             print("Warning: 'wazuh-db' is deprecated; use 'wazuh_db' instead.", file=sys.stderr)
@@ -204,13 +221,17 @@ def main():
         if not plugin:
             print(f"Error: Module '{args.module}' not found", file=sys.stderr)
             sys.exit(1)
-        if not args.config.exists():
-            print(f"Error: Config file not found: {args.config}", file=sys.stderr)
-            sys.exit(1)
+        print(f"Config: {args.config}", file=sys.stderr)
         state = plugin.read(args.config)
         print(json.dumps(state, indent=2))
 
     elif args.command == "plan":
+        state_path = default_state_path()
+        try:
+            args.config = detect_ossec_conf_path(config_override=args.config, state_path=state_path)
+        except Exception as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
         module = args.module
         if module == "wazuh-db":
             print("Warning: 'wazuh-db' is deprecated; use 'wazuh_db' instead.", file=sys.stderr)
@@ -219,9 +240,7 @@ def main():
         if not plugin:
             print(f"Error: Module '{args.module}' not found", file=sys.stderr)
             sys.exit(1)
-        if not args.config.exists():
-            print(f"Error: Config file not found: {args.config}", file=sys.stderr)
-            sys.exit(1)
+        print(f"Config: {args.config}", file=sys.stderr)
         if not args.desired.exists():
             print(f"Error: Desired state file not found: {args.desired}", file=sys.stderr)
             sys.exit(1)
@@ -338,6 +357,13 @@ def main():
         sys.exit(0)
 
     elif args.command == "test":
+        state_path = default_state_path()
+        try:
+            args.config = detect_ossec_conf_path(config_override=args.config, state_path=state_path)
+        except Exception as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
+        print(f"Config: {args.config}", file=sys.stderr)
         res = run_self_test(config_path=args.config, data_dir=data_dir, applier=applier, validator=validator)
         print(res.render())
         sys.exit(0 if res.passed else 1)

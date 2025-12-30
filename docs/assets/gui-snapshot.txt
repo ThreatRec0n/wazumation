@@ -1,8 +1,0 @@
-Feature Selector (fixture snapshot)
-
-auditd-monitoring   disabled
-email-alerts        disabled
-fim-enhanced        disabled
-localfile-nginx     disabled
-sca-cis             disabled
-vuln-detector       disabled

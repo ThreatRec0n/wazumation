@@ -185,6 +185,12 @@ def run_self_test(
         return fail("Return-to-baseline: probe still detected after revert")
     ok("returned to baseline and detection matches")
 
+    # Validate Wazuh configuration using wazuh-control -t (must pass; no restart attempted on failure).
+    valid2, errors2 = validator.validate_ossec_conf(config_path)
+    if not valid2:
+        return fail("Service health: " + "; ".join(errors2))
+    ok("wazuh-control -t validation passed")
+
     # Confirm backups exist (at least one for ossec.conf) if not dry-run.
     backups = list((data_dir / "backups").glob("ossec.conf.*.bak"))
     if backups:

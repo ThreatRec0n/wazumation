@@ -27,14 +27,19 @@ def test_gui_requires_tkinter_message(monkeypatch, capsys):
 
     # Now calling the GUI should produce the clean error.
     from pathlib import Path
+    import tempfile
 
-    rc = gui.launch_gui(
-        config_path=Path("test_ossec.conf"),
-        data_dir=Path("test_data"),
-        state_path=Path("test_data") / "state.json",
-        applier=None,
-        validator=None,
-    )
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        cfg = tmp / "ossec.conf"
+        cfg.write_text("<ossec_config></ossec_config>\n", encoding="utf-8")
+        rc = gui.launch_gui(
+            config_path=cfg,
+            data_dir=tmp / "data",
+            state_path=tmp / "state.json",
+            applier=None,
+            validator=None,
+        )
     assert rc == 1
     captured = capsys.readouterr()
     assert "GUI requires python3-tk. Install with: sudo apt install python3-tk" in captured.err

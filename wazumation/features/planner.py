@@ -114,7 +114,10 @@ def _apply_section_desired(sections: Dict[str, Any], section_tag: str, desired: 
         if v is None:
             children.pop(k, None)
         else:
-            children[k] = {"text": str(v)}
+            if isinstance(v, list):
+                children[k] = [{"text": str(x)} for x in v]
+            else:
+                children[k] = {"text": str(v)}
 
     if attrs:
         section["attributes"] = attrs
@@ -150,6 +153,7 @@ def build_feature_plan(
     state_snapshot: Dict[str, Any],
     prompt_fn: Optional[Any],
     is_manager_fn: Optional[Any] = None,
+    values_by_feature: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> FeaturePlanResult:
     ok, reason = (is_manager_fn(config_path) if is_manager_fn else _is_wazuh_manager(config_path))
     if not ok:
@@ -180,6 +184,12 @@ def build_feature_plan(
                 desired = {}
                 for k, spec in action["desired_from_prompts"].items():
                     desired[k] = prompt_fn(spec["prompt"], spec.get("default"), spec.get("required", False))
+                _apply_section_desired(sections, section, desired)
+            elif "desired_from_values" in action:
+                values = (values_by_feature or {}).get(feat["feature_id"], {})
+                desired = {}
+                for ossec_key, value_key in action["desired_from_values"].items():
+                    desired[ossec_key] = values.get(value_key)
                 _apply_section_desired(sections, section, desired)
 
     # Apply disable: restore previous values captured in state_snapshot.

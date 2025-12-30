@@ -27,6 +27,7 @@ class FeatureState:
     enabled: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     last_applied_at: Optional[str] = None
     modified_files: List[str] = field(default_factory=list)
+    ossec_conf_path: Optional[str] = None
 
     @classmethod
     def load(cls, path: Path) -> "FeatureState":
@@ -37,17 +38,20 @@ class FeatureState:
             enabled=data.get("enabled", {}),
             last_applied_at=data.get("last_applied_at"),
             modified_files=data.get("modified_files", []),
+            ossec_conf_path=data.get("ossec_conf_path"),
         )
 
-    def save(self, path: Path) -> None:
+    def save(self, path: Path, *, touch_last_applied: bool = True) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.last_applied_at = datetime.now(timezone.utc).isoformat()
+        if touch_last_applied:
+            self.last_applied_at = datetime.now(timezone.utc).isoformat()
         path.write_text(
             json.dumps(
                 {
                     "enabled": self.enabled,
                     "last_applied_at": self.last_applied_at,
                     "modified_files": self.modified_files,
+                    "ossec_conf_path": self.ossec_conf_path,
                 },
                 indent=2,
                 sort_keys=True,

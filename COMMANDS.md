@@ -36,7 +36,7 @@ wazumation read <section> --config /path/to/ossec.conf
 
 **Example:**
 ```bash
-wazumation read syscheck --config test_ossec.conf
+wazumation read syscheck
 ```
 
 **Output:** JSON representation of current state
@@ -54,8 +54,8 @@ wazumation plan <section> --config /path/to/ossec.conf \
 
 **Example:**
 ```bash
-wazumation plan syscheck --config test_ossec.conf \
-  --desired examples/syscheck_desired.json --output my_plan.json --data-dir ./.wazumation_test
+wazumation plan syscheck \
+  --desired examples/syscheck_desired.json --output my_plan.json
 ```
 
 **Output:**
@@ -94,12 +94,12 @@ wazumation apply <plan.json> --approve [--dry-run] --config /path/to/ossec.conf 
 
 **Example (dry-run):**
 ```bash
-wazumation apply my_plan.json --approve --dry-run --config test_ossec.conf --data-dir ./.wazumation_test
+wazumation apply my_plan.json --approve --dry-run
 ```
 
 **Example (real apply):**
 ```bash
-wazumation apply my_plan.json --approve --config test_ossec.conf --data-dir ./.wazumation_test
+wazumation apply my_plan.json --approve
 ```
 
 **Safety Features:**

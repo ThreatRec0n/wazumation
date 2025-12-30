@@ -43,15 +43,11 @@ python -m pip install -e .
 wazumation --list
 ```
 
-![wazumation --list](docs/assets/cli-list.svg)
-
 ### Show live status (reads real config)
 
 ```bash
 wazumation --status
 ```
-
-![wazumation --status](docs/assets/cli-status.svg)
 
 ### Enable / disable (idempotent)
 
@@ -79,7 +75,6 @@ wazumation --diff-feature localfile-nginx
 
 This prints the **stored plan diff** for the last time the feature was applied (from the state file).
 
-![wazumation --diff-feature](docs/assets/cli-diff-feature.svg)
 
 ### GUI (lightweight)
 
@@ -101,7 +96,6 @@ If you see an error about missing tkinter:
 sudo apt install python3-tk
 ```
 
-![GUI snapshot](docs/assets/gui-snapshot.svg)
 
 ## Self Test (one command / one click)
 
@@ -131,8 +125,6 @@ Run from GUI:
 - Click **Self Test**
 
 PASS means Wazumation can safely apply + detect + revert changes using the real parser/writer and validation gates. FAIL includes the phase, reason, and suggested remediation.
-
-![self test pass](docs/assets/self-test-pass.svg)
 
 ## Feature catalog (current)
 
@@ -172,12 +164,6 @@ xmllint --noout /var/ossec/etc/ossec.conf
 
 ```bash
 python -m pytest -q
-```
-
-This repo also includes tools to generate the documentation assets:
-
-```bash
-python tools/generate_docs_assets.py
 ```
 
 ## License

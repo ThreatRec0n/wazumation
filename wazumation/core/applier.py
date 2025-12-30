@@ -267,6 +267,16 @@ class PlanApplier:
                     self._rollback_changes(applied_changes)
                     raise ApplyError(f"Apply failed: {errors}")
 
+            # Validate final state BEFORE any service operations (safety gate).
+            if not self.dry_run:
+                for file_change in plan.file_changes:
+                    if file_change.path.endswith("ossec.conf") and Path(file_change.path).exists():
+                        is_valid, validation_errors = self.validator.validate_ossec_conf(Path(file_change.path))
+                        if not is_valid:
+                            errors.extend(validation_errors)
+                            self._rollback_changes(applied_changes)
+                            raise ApplyError(f"Pre-service validation failed: {errors}")
+
             # Apply service changes
             for service_change in plan.service_changes:
                 try:
@@ -278,18 +288,7 @@ class PlanApplier:
                     # Rollback file changes
                     self._rollback_changes(applied_changes)
                     raise ApplyError(f"Service operation failed: {errors}")
-
-            # Validate final state (skip in dry-run)
-            if not self.dry_run:
-                for file_change in plan.file_changes:
-                    if file_change.path.endswith("ossec.conf") and Path(file_change.path).exists():
-                        is_valid, validation_errors = self.validator.validate_ossec_conf(
-                            Path(file_change.path)
-                        )
-                        if not is_valid:
-                            errors.extend(validation_errors)
-                            self._rollback_changes(applied_changes)
-                            raise ApplyError(f"Post-apply validation failed: {errors}")
+            # Post-apply validation is now implicit: config is validated before service ops.
 
             # Log success
             self.audit_logger.log(
