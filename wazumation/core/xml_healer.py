@@ -16,6 +16,8 @@ Design:
 from __future__ import annotations
 
 import re
+import subprocess
+import os
 import shutil
 import time
 from dataclasses import dataclass
@@ -182,6 +184,12 @@ class XMLHealer:
             ok, errs = self.validator.validate_ossec_conf(self.config_path, auto_fix=auto_fix)
             if ok:
                 msgs.append("Validation passed")
+                # Extra best-effort Wazuh-native parse test (matches wazuh-analysisd (1226) failures).
+                ok_w, wmsg = self._wazuh_analysisd_test()
+                if wmsg:
+                    msgs.append(wmsg)
+                if ok_w is False:
+                    return False, msgs
                 return True, msgs
             msgs.append("Validation failed: " + "; ".join(errs))
             return False, msgs
@@ -192,9 +200,39 @@ class XMLHealer:
 
             etree.parse(str(self.config_path), etree.XMLParser(remove_blank_text=True))
             msgs.append("lxml parse passed")
+            ok_w, wmsg = self._wazuh_analysisd_test()
+            if wmsg:
+                msgs.append(wmsg)
+            if ok_w is False:
+                return False, msgs
             return True, msgs
         except Exception as e:
             msgs.append(f"lxml parse failed: {e}")
             return False, msgs
+
+    def _wazuh_analysisd_test(self) -> Tuple[Optional[bool], str]:
+        """
+        Best-effort validation via wazuh-analysisd -t if present.
+
+        Returns:
+          (True, msg)  -> test ran and passed
+          (False, msg) -> test ran and failed
+          (None, msg)  -> test not available / skipped
+        """
+        if os.name != "posix":
+            return None, ""
+        bin_path = Path("/var/ossec/bin/wazuh-analysisd")
+        if not bin_path.exists():
+            return None, ""
+        try:
+            r = subprocess.run([str(bin_path), "-t"], capture_output=True, text=True, timeout=15)
+            if r.returncode == 0:
+                return True, "wazuh-analysisd -t passed"
+            # include a short snippet for diagnostics
+            out = (r.stdout or "") + (("\n" + r.stderr) if r.stderr else "")
+            out = "\n".join(out.splitlines()[:8]).strip()
+            return False, f"wazuh-analysisd -t failed: {out}"
+        except Exception as e:
+            return None, f"wazuh-analysisd -t skipped: {e}"
 
 
