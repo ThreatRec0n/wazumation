@@ -10,6 +10,7 @@ from wazumation.core.change_plan import ChangePlan, FileChange, ServiceChange, C
 from wazumation.core.backup import BackupManager
 from wazumation.core.validator import ConfigValidator, ValidationError
 from wazumation.core.audit import AuditLogger, AuditResult
+from wazumation.features.service_manager import WazuhServiceManager
 
 
 class ApplyError(Exception):
@@ -204,6 +205,28 @@ class PlanApplier:
 
         # Apply service change
         try:
+            # Smart service handling for Wazuh: avoid failing when service is stopped.
+            if change.service_name == WazuhServiceManager.SERVICE_NAME:
+                if change.change_type == ChangeType.SERVICE_RESTART:
+                    # Prefer reload (less disruptive), then restart (start if stopped).
+                    ok, msg = WazuhServiceManager.reload()
+                    if not ok:
+                        ok, msg = WazuhServiceManager.restart()
+                    if not ok:
+                        raise ApplyError(msg)
+                    return
+                if change.change_type == ChangeType.SERVICE_START:
+                    ok, msg = WazuhServiceManager.start()
+                    if not ok:
+                        raise ApplyError(msg)
+                    return
+                if change.change_type == ChangeType.SERVICE_STOP:
+                    ok, msg = WazuhServiceManager.stop()
+                    if not ok:
+                        raise ApplyError(msg)
+                    return
+
+            # Default behavior for allowlisted services.
             if change.change_type == ChangeType.SERVICE_RESTART:
                 subprocess.run(["systemctl", "restart", change.service_name], check=True, timeout=30)
             elif change.change_type == ChangeType.SERVICE_START:

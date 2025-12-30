@@ -13,6 +13,7 @@ from wazumation.features.state import FeatureState
 from wazumation.features.detector import detect_feature_states
 from wazumation.features.cli import cmd_enable_disable
 from wazumation.features.self_test import run_self_test
+from wazumation.features.service_manager import WazuhServiceManager
 
 
 def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, validator) -> int:
@@ -65,8 +66,8 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
     cfg_lbl = ttk.Label(top, text=f"Config: {config_path}", foreground="#9fb3c8")
     cfg_lbl.pack(side="left", padx=(12, 0))
 
-    wazuh_status = ttk.Label(top, text="Wazuh: unknown", foreground=WARN)
-    wazuh_status.pack(side="right")
+    wazuh_status = ttk.Label(top, text="Wazuh: UNKNOWN", foreground=WARN)
+    wazuh_status.pack(side="right", padx=(10, 0))
 
     # Main split
     main = ttk.PanedWindow(root, orient="horizontal")
@@ -116,18 +117,47 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
         log_box.insert("end", msg + "\n")
         log_box.see("end")
 
+    def handle_service_error(error_msg: str) -> None:
+        """Show helpful dialog when service operations fail."""
+        from tkinter import messagebox  # type: ignore
+
+        dialog_msg = f"Service operation failed:\n\n{error_msg}\n\n"
+        dialog_msg += "Common solutions:\n"
+        dialog_msg += "• Check if Wazuh is installed\n"
+        dialog_msg += "• Run: sudo systemctl status wazuh-manager\n"
+        dialog_msg += "• Start service: sudo systemctl start wazuh-manager\n"
+        dialog_msg += "• Check logs: sudo journalctl -xeu wazuh-manager\n"
+        messagebox.showerror("Service Error", dialog_msg)
+
     def refresh_wazuh_status() -> None:
-        if hasattr(os, "name") and os.name == "posix":
-            try:
-                r = subprocess.run(["systemctl", "is-active", "wazuh-manager"], capture_output=True, text=True, timeout=5)
-                if r.returncode == 0:
-                    wazuh_status.configure(text="Wazuh: running", foreground=ACCENT)
-                else:
-                    wazuh_status.configure(text="Wazuh: stopped", foreground=ERR)
-            except Exception:
-                wazuh_status.configure(text="Wazuh: unknown", foreground=WARN)
-        else:
-            wazuh_status.configure(text="Wazuh: n/a", foreground=WARN)
+        """Refresh Wazuh service status indicator."""
+        try:
+            status = WazuhServiceManager.get_status()
+
+            status_colors = {
+                "running": ACCENT,
+                "stopped": ERR,
+                "failed": "#ff5722",
+                "unknown": WARN,
+            }
+            status_text = {
+                "running": "Wazuh: RUNNING",
+                "stopped": "Wazuh: STOPPED",
+                "failed": "Wazuh: FAILED",
+                "unknown": "Wazuh: UNKNOWN",
+            }
+
+            wazuh_status.configure(
+                text=status_text.get(status, "Wazuh: ???"),
+                foreground=status_colors.get(status, WARN),
+            )
+        except Exception:
+            wazuh_status.configure(text="Wazuh: UNKNOWN", foreground=WARN)
+
+    def auto_refresh_status() -> None:
+        """Auto-refresh service status periodically."""
+        refresh_wazuh_status()
+        root.after(5000, auto_refresh_status)
 
     def load_detection() -> Dict[str, Dict[str, Any]]:
         return detect_feature_states(config_path)
@@ -304,8 +334,14 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
                     validator=validator,
                 )
                 root.after(0, lambda: log(f"Apply finished (rc={rc})."))
+                # After successful apply, auto-refresh status shortly after (gives systemd time).
+                root.after(0, lambda: log("Auto-refreshing status..."))
+                root.after(1000, refresh_wazuh_status)
             except Exception as e:
-                root.after(0, lambda: messagebox.showerror("Apply failed", str(e)))
+                msg = str(e)
+                root.after(0, lambda: messagebox.showerror("Apply failed", msg))
+                if "Service operation failed" in msg or "systemctl" in msg:
+                    root.after(0, lambda: handle_service_error(msg))
             root.after(0, populate_tree)
 
         run_in_thread(_work)
@@ -347,6 +383,46 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
         t.configure(state="disabled")
 
     ttk.Button(btn_row, text="Refresh", command=do_refresh).pack(side="left")
+    # Service controls
+    def _start_service():
+        def _work():
+            root.after(0, lambda: log("Starting Wazuh service..."))
+            ok, msg = WazuhServiceManager.start()
+            root.after(0, lambda: log(("✓ " if ok else "✗ ") + msg))
+            if not ok:
+                root.after(0, lambda: handle_service_error(msg))
+            root.after(1000, refresh_wazuh_status)
+
+        run_in_thread(_work)
+
+    def _stop_service():
+        if not messagebox.askyesno("Confirm", "Stop Wazuh service?"):
+            return
+
+        def _work():
+            root.after(0, lambda: log("Stopping Wazuh service..."))
+            ok, msg = WazuhServiceManager.stop()
+            root.after(0, lambda: log(("✓ " if ok else "✗ ") + msg))
+            if not ok:
+                root.after(0, lambda: handle_service_error(msg))
+            root.after(1000, refresh_wazuh_status)
+
+        run_in_thread(_work)
+
+    def _restart_service():
+        def _work():
+            root.after(0, lambda: log("Restarting Wazuh service..."))
+            ok, msg = WazuhServiceManager.restart()
+            root.after(0, lambda: log(("✓ " if ok else "✗ ") + msg))
+            if not ok:
+                root.after(0, lambda: handle_service_error(msg))
+            root.after(1000, refresh_wazuh_status)
+
+        run_in_thread(_work)
+
+    ttk.Button(btn_row, text="Start Wazuh", command=_start_service).pack(side="left", padx=(8, 0))
+    ttk.Button(btn_row, text="Stop Wazuh", command=_stop_service).pack(side="left", padx=(8, 0))
+    ttk.Button(btn_row, text="Restart Wazuh", command=_restart_service).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Enable Selected", command=lambda: set_desired(True)).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Disable Selected", command=lambda: set_desired(False)).pack(side="left", padx=(8, 0))
     ttk.Button(btn_row, text="Diff", command=do_diff).pack(side="left", padx=(8, 0))
@@ -364,6 +440,7 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
     search_var.trace_add("write", on_search)
 
     refresh_wazuh_status()
+    auto_refresh_status()
     populate_tree()
     log("Ready.")
 
