@@ -11,6 +11,7 @@ from wazumation.core.backup import BackupManager
 from wazumation.core.validator import ConfigValidator, ValidationError
 from wazumation.core.audit import AuditLogger, AuditResult
 from wazumation.features.service_manager import WazuhServiceManager
+from wazumation.core.xml_healer import XMLHealer
 
 
 class ApplyError(Exception):
@@ -280,6 +281,27 @@ class PlanApplier:
         # Apply file changes
         applied_changes = []
         try:
+            # Preflight auto-heal: if the *current* ossec.conf is already broken, fix it before we touch anything.
+            if not self.dry_run:
+                for file_change in plan.file_changes:
+                    if file_change.path.endswith("ossec.conf"):
+                        p = Path(file_change.path)
+                        if p.exists():
+                            ok0, errs0 = self.validator.validate_ossec_conf(p, auto_fix=True)
+                            if not ok0:
+                                heal = XMLHealer(p, validator=self.validator).heal()
+                                if heal.ok:
+                                    self.audit_logger.log(
+                                        action="xml_heal",
+                                        module="applier",
+                                        result=AuditResult.SUCCESS,
+                                        plan_id=plan.plan_id,
+                                        details={"path": str(p), "fixes": heal.fixes},
+                                    )
+                                else:
+                                    errors.append("XML heal failed: " + "; ".join(heal.fixes))
+                                    raise ApplyError(f"Preflight XML heal failed: {errors}")
+
             for file_change in plan.file_changes:
                 try:
                     self._apply_file_change(file_change)
@@ -294,9 +316,27 @@ class PlanApplier:
             if not self.dry_run:
                 for file_change in plan.file_changes:
                     if file_change.path.endswith("ossec.conf") and Path(file_change.path).exists():
-                        is_valid, validation_errors = self.validator.validate_ossec_conf(Path(file_change.path))
+                        p = Path(file_change.path)
+                        is_valid, validation_errors = self.validator.validate_ossec_conf(p, auto_fix=True)
                         if not is_valid:
-                            errors.extend(validation_errors)
+                            # Attempt full heal (BOM/invalid chars/trailing garbage) once.
+                            heal = XMLHealer(p, validator=self.validator).heal()
+                            if heal.ok:
+                                self.audit_logger.log(
+                                    action="xml_heal",
+                                    module="applier",
+                                    result=AuditResult.SUCCESS,
+                                    plan_id=plan.plan_id,
+                                    details={"path": str(p), "fixes": heal.fixes},
+                                )
+                                is_valid2, validation_errors2 = self.validator.validate_ossec_conf(p, auto_fix=False)
+                                if is_valid2:
+                                    continue
+                                errors.extend(validation_errors2)
+                            else:
+                                errors.extend(validation_errors)
+                                errors.append("XML heal failed: " + "; ".join(heal.fixes))
+
                             self._rollback_changes(applied_changes)
                             raise ApplyError(f"Pre-service validation failed: {errors}")
 

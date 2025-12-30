@@ -12,6 +12,7 @@ from wazumation.core.validator import ConfigValidator
 from wazumation.core.applier import PlanApplier
 from wazumation.core.diff import DiffEngine
 from wazumation.core.change_plan import ChangePlan
+from wazumation.core.xml_healer import XMLHealer
 from wazumation.wazuh.plugin import PluginRegistry
 from wazumation.wazuh.plugins import register_all_plugins
 from wazumation.features.cli import (
@@ -162,9 +163,10 @@ def main():
             sys.exit(cmd_list_features())
         if args.fix_xml:
             print(f"Config: {args.config}", file=sys.stderr)
-            was_fixed, msg = validator.auto_fix_xml_issues(args.config)
-            print(msg)
-            sys.exit(0 if was_fixed else 1)
+            res = XMLHealer(args.config, validator=validator).heal()
+            for line in res.fixes:
+                print(line)
+            sys.exit(0 if res.ok else 1)
         if args.status:
             print(f"Config: {args.config}", file=sys.stderr)
             sys.exit(cmd_status(state_path, args.config))
