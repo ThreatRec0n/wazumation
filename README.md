@@ -19,7 +19,8 @@ This repo also contains a full `ossec.conf` section/plugin system (`wazumation r
 
 - **Target host**: Wazuh **manager** (Linux) with real config at **`/var/ossec/etc/ossec.conf`** (default).
 - **Python**: 3.9+ (recommended 3.10+)
-- **Dependencies**: `lxml` (Tkinter GUI uses stdlib `tkinter`)
+- **CLI dependencies**: `lxml` (CLI works headless)
+- **GUI dependencies**: `python3-tk` (Tkinter)
 
 If you run feature toggles or self test on a non-manager node, Wazumation will fail clearly.
 
@@ -93,6 +94,12 @@ wazumation-gui
 ```
 
 The GUI shows the live detected status and lets you multi-select features and apply changes with logging output.
+
+If you see an error about missing tkinter:
+
+```bash
+sudo apt install python3-tk
+```
 
 ![GUI snapshot](docs/assets/gui-snapshot.svg)
 

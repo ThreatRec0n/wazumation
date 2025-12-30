@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import sys
 
 from wazumation.core.audit import AuditChain, AuditLogger
 from wazumation.core.backup import BackupManager
 from wazumation.core.applier import PlanApplier
 from wazumation.core.validator import ConfigValidator
-from wazumation.features.gui import launch_gui
 from wazumation.features.state import default_state_path
 
 
@@ -39,6 +39,14 @@ def main() -> None:
     applier = PlanApplier(backup_manager, validator, audit_logger, dry_run=False)
 
     state_path = default_state_path()
+    # Lazy-load GUI (tkinter may not be installed on headless servers).
+    try:
+        from wazumation.features.gui import launch_gui  # local import by design
+    except ModuleNotFoundError as e:
+        if str(e).strip("'\"") in ("tkinter",):
+            print("GUI requires python3-tk. Install with: sudo apt install python3-tk", file=sys.stderr)
+            raise SystemExit(1)
+        raise
     raise SystemExit(
         launch_gui(
             config_path=args.config,

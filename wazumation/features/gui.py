@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-import tkinter as tk
-from tkinter import messagebox, simpledialog
 from pathlib import Path
 from typing import Optional, List
 
@@ -16,6 +13,16 @@ from wazumation.features.self_test import run_self_test
 
 
 def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, validator) -> int:
+    # Lazy tkinter import: CLI must work headless with zero GUI deps.
+    try:
+        import tkinter as tk  # type: ignore
+        from tkinter import messagebox, simpledialog  # type: ignore
+    except Exception:
+        import sys
+
+        print("GUI requires python3-tk. Install with: sudo apt install python3-tk", file=sys.stderr)
+        return 1
+
     reg = get_feature_registry()
     st = FeatureState.load(state_path)
     detected = detect_feature_states(config_path)

@@ -20,7 +20,6 @@ from wazumation.features.cli import (
     cmd_diff,
 )
 from wazumation.features.state import default_state_path
-from wazumation.features.gui import launch_gui
 from wazumation.features.self_test import run_self_test
 
 
@@ -152,6 +151,19 @@ def main():
         if args.diff_feature:
             sys.exit(cmd_diff(args.diff_feature, state_path, data_dir))
         if args.gui:
+            # Lazy-load GUI to keep CLI headless-friendly (tkinter may not be installed).
+            try:
+                from wazumation.features.gui import launch_gui  # local import by design
+            except ModuleNotFoundError as e:
+                # If tkinter isn't installed, importing gui will fail inside it; but keep this
+                # as a hard safety net for unusual environments.
+                if str(e).strip("'\"") in ("tkinter",):
+                    print(
+                        "GUI requires python3-tk. Install with: sudo apt install python3-tk",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+                raise
             sys.exit(
                 launch_gui(
                     config_path=args.config,
