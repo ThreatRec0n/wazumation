@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="264" viewBox="0 0 1040 264">
+<rect x="1" y="1" width="1038" height="262" rx="10" fill="#0b0f14" stroke="#223043" />
+<text x="16" y="34" fill="#9fb3c8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">wazumation --status (fixture ossec.conf)</text>
+<text x="16" y="61" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">Traceback (most recent call last):</text>
+<text x="16" y="79" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">  File &quot;&lt;frozen runpy&gt;&quot;, line 198, in _run_module_as_main</text>
+<text x="16" y="97" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">  File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code</text>
+<text x="16" y="115" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">  File &quot;C:\Users\Andre\Desktop\wazuh\wazumation\cli\main.py&quot;, line 335, in &lt;module&gt;</text>
+<text x="16" y="133" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">    main()</text>
+<text x="16" y="151" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">  File &quot;C:\Users\Andre\Desktop\wazuh\wazumation\cli\main.py&quot;, line 131, in main</text>
+<text x="16" y="169" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">    data_dir.mkdir(exist_ok=True)</text>
+<text x="16" y="187" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">  File &quot;C:\Users\Andre\anaconda3\Lib\pathlib.py&quot;, line 1311, in mkdir</text>
+<text x="16" y="205" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">    os.mkdir(self, mode)</text>
+<text x="16" y="223" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">FileNotFoundError: [WinError 3] The system cannot find the path specified: &#39;C:\\Users\\Andre\\AppData\\Local\\Temp\\tmp…</text>
+</svg>

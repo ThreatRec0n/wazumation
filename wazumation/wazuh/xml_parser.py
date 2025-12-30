@@ -31,7 +31,7 @@ class WazuhXMLParser:
         parser = etree.XMLParser(
             remove_blank_text=False,
             strip_cdata=False,
-            remove_comments=True,
+            remove_comments=False,
             remove_pis=True,
         )
         self.root = etree.fromstring(xml_text.encode("utf-8"), parser=parser)
@@ -68,10 +68,16 @@ class WazuhXMLParser:
         if element.text and element.text.strip():
             result["text"] = element.text.strip()
 
+        # Preserve direct comment children (used for Wazumation marker strategy).
+        comments: List[str] = []
+
         # Handle children
         children = {}
         for child in element:
             if not isinstance(child.tag, str):
+                # lxml comments are non-element nodes (non-string .tag).
+                if isinstance(child, etree._Comment) and child.text and child.text.strip():
+                    comments.append(child.text.strip())
                 continue
             child_name = child.tag
             if child_name in children:
@@ -84,6 +90,9 @@ class WazuhXMLParser:
 
         if children:
             result["children"] = children
+
+        if comments:
+            result["__comments__"] = comments
 
         # Handle tail text (rare but possible)
         if element.tail and element.tail.strip():
@@ -140,6 +149,13 @@ class WazuhXMLWriter:
     def _dict_to_element(self, tag: str, data: Dict[str, Any]) -> etree.Element:
         """Convert dictionary to XML element."""
         element = etree.Element(tag)
+
+        # Optional comment markers (Wazumation-added blocks).
+        comments = data.get("__comments__")
+        if isinstance(comments, list):
+            for c in comments:
+                if c:
+                    element.append(etree.Comment(str(c)))
 
         # Set attributes
         if "attributes" in data:

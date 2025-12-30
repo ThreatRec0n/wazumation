@@ -14,6 +14,7 @@ from wazumation.core.diff import DiffEngine
 from wazumation.features.planner import build_feature_plan
 from wazumation.features.registry import get_feature_registry
 from wazumation.features.state import FeatureState, default_state_path
+from wazumation.features.detector import detect_feature_states
 
 
 def _parse_csv(arg: Optional[str]) -> List[str]:
@@ -30,15 +31,22 @@ def cmd_list_features() -> int:
     return 0
 
 
-def cmd_status(state_path: Path) -> int:
+def cmd_status(state_path: Path, config_path: Path) -> int:
     st = FeatureState.load(state_path)
     print(f"State file: {state_path}")
-    print(f"Last applied: {st.last_applied_at or 'never'}")
-    print("Enabled features:")
-    for fid in sorted(st.enabled.keys()):
-        print(f"  {fid}")
+    print(f"Last applied (state): {st.last_applied_at or 'never'}")
+    print("")
+    print("Detected feature state (live config):")
+    reg = get_feature_registry()
+    detected = detect_feature_states(config_path)
+    for fid in sorted(reg.keys()):
+        ds = detected.get(fid, {})
+        status = ds.get("status", "unknown")
+        print(f"  {fid}: {status}")
+
     if st.modified_files:
-        print("Modified files:")
+        print("")
+        print("Files recorded as modified (state):")
         for p in st.modified_files:
             print(f"  {p}")
     return 0
@@ -100,7 +108,9 @@ def cmd_enable_disable(
                 restore[section] = {k: None for k in action["desired"].keys()}
             elif "ensure_instance" in action and section == "localfile":
                 # Restore by removing the instance only if we added it.
-                restore.setdefault("__remove_localfile__", []).append(action["ensure_instance"])
+                restore.setdefault("__remove_localfile__", []).append(
+                    {"instance": action["ensure_instance"], "marker": f.feature_id}
+                )
         restore_snapshot[f.feature_id] = {"restore": restore}
 
     # Build a plan applying all requested toggles as a single atomic change.
@@ -125,6 +135,7 @@ def cmd_enable_disable(
         disable_features=[{"feature_id": f.feature_id, "actions": f.actions} for f in disable_feats],
         state_snapshot={fid: st.enabled[fid] for fid in disable if fid in st.enabled} | restore_snapshot,
         prompt_fn=prompt_fn,
+        is_manager_fn=None,
     )
 
     plan = result.plan

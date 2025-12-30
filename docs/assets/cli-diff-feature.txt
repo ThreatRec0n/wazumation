@@ -1,0 +1,34 @@
+=== Change Plan: Apply Wazumation feature selection ===
+Plan ID: 965029b3
+Created: 2025-12-30T01:37:29.979243+00:00
+
+--- File Changes ---
+
+[1] UPDATE: C:\Users\Andre\AppData\Local\Temp\tmpzc11yk31\ossec.conf
+    plan_id: 965029b3
+    plugin: features
+--- C:\Users\Andre\AppData\Local\Temp\tmpzc11yk31\ossec.conf
++++ C:\Users\Andre\AppData\Local\Temp\tmpzc11yk31\ossec.conf
+@@ -6,4 +6,9 @@
+   <syscheck>
+
+     <disabled>no</disabled>
+
+   </syscheck>
+
++  <localfile>
+
++    <!--WAZUMATION:feature=localfile-nginx-->
+
++    <log_format>apache</log_format>
+
++    <location>/var/log/nginx/access.log</location>
+
++  </localfile>
+
+ </ossec_config>
+
+--- Service Operations ---
+[1] SERVICE_RESTART: wazuh-manager
+    Reason: Feature configuration changes applied
+    plan_id: 965029b3

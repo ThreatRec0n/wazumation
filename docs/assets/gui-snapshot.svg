@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="228" viewBox="0 0 1040 228">
+<rect x="1" y="1" width="1038" height="226" rx="10" fill="#0b0f14" stroke="#223043" />
+<text x="16" y="34" fill="#9fb3c8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">GUI feature list snapshot (same detection engine)</text>
+<text x="16" y="61" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">Feature Selector (fixture snapshot)</text>
+<text x="16" y="79" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14"></text>
+<text x="16" y="97" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">auditd-monitoring   disabled</text>
+<text x="16" y="115" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">email-alerts        disabled</text>
+<text x="16" y="133" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">fim-enhanced        disabled</text>
+<text x="16" y="151" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">localfile-nginx     disabled</text>
+<text x="16" y="169" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">sca-cis             disabled</text>
+<text x="16" y="187" fill="#d7dde6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">vuln-detector       disabled</text>
+</svg>

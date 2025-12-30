@@ -25,7 +25,7 @@ def _is_wazuh_manager(config_path: Path) -> Tuple[bool, str]:
     return True, ""
 
 
-def _ensure_localfile_instance(sections: Dict[str, Any], instance: Dict[str, str]) -> None:
+def _ensure_localfile_instance(sections: Dict[str, Any], instance: Dict[str, str], *, marker: Optional[str] = None) -> None:
     """
     Ensure a <localfile> block exists with exact (log_format, location).
     This is idempotent: it does not duplicate if an equivalent instance exists.
@@ -46,6 +46,7 @@ def _ensure_localfile_instance(sections: Dict[str, Any], instance: Dict[str, str
             return
 
     new_it = {
+        "__comments__": [f"WAZUMATION:feature={marker}"] if marker else [],
         "children": {
             "log_format": {"text": instance["log_format"]},
             "location": {"text": instance["location"]},
@@ -59,8 +60,10 @@ def _ensure_localfile_instance(sections: Dict[str, Any], instance: Dict[str, str
         sections[tag] = [existing, new_it]
 
 
-def _remove_localfile_instance(sections: Dict[str, Any], instance: Dict[str, str]) -> None:
-    """Remove matching <localfile> instances (log_format + location)."""
+def _remove_localfile_instance(
+    sections: Dict[str, Any], instance: Dict[str, str], *, marker: Optional[str] = None
+) -> None:
+    """Remove matching <localfile> instances (log_format + location), optionally requiring a marker."""
     tag = "localfile"
     existing = sections.get(tag)
     items = existing if isinstance(existing, list) else ([existing] if existing is not None else [])
@@ -69,7 +72,12 @@ def _remove_localfile_instance(sections: Dict[str, Any], instance: Dict[str, str
         children = (it.get("children") or {}) if isinstance(it, dict) else {}
         lf = children.get("log_format", {}).get("text") if isinstance(children.get("log_format"), dict) else None
         loc = children.get("location", {}).get("text") if isinstance(children.get("location"), dict) else None
-        return lf == instance.get("log_format") and loc == instance.get("location")
+        if lf != instance.get("log_format") or loc != instance.get("location"):
+            return False
+        if marker:
+            comments = it.get("__comments__") if isinstance(it, dict) else None
+            return isinstance(comments, list) and any(f"WAZUMATION:feature={marker}" in str(c) for c in comments)
+        return True
 
     kept = [it for it in items if not (isinstance(it, dict) and _matches(it))]
     if not kept:
@@ -141,8 +149,9 @@ def build_feature_plan(
     disable_features: List[Dict[str, Any]],
     state_snapshot: Dict[str, Any],
     prompt_fn: Optional[Any],
+    is_manager_fn: Optional[Any] = None,
 ) -> FeaturePlanResult:
-    ok, reason = _is_wazuh_manager(config_path)
+    ok, reason = (is_manager_fn(config_path) if is_manager_fn else _is_wazuh_manager(config_path))
     if not ok:
         raise RuntimeError(reason)
 
@@ -160,7 +169,11 @@ def build_feature_plan(
             if "desired" in action:
                 _apply_section_desired(sections, section, action["desired"])
             elif "ensure_instance" in action and section == "localfile":
-                _ensure_localfile_instance(sections, action["ensure_instance"])
+                _ensure_localfile_instance(
+                    sections,
+                    action["ensure_instance"],
+                    marker=action.get("marker") or feat.get("feature_id"),
+                )
             elif "desired_from_prompts" in action:
                 if not prompt_fn:
                     raise RuntimeError(f"Feature '{feat['feature_id']}' requires interactive input.")
@@ -176,7 +189,14 @@ def build_feature_plan(
         for section_tag, desired in restore.items():
             if section_tag == "__remove_localfile__":
                 for inst in desired:
-                    _remove_localfile_instance(sections, inst)
+                    if isinstance(inst, dict) and "instance" in inst:
+                        _remove_localfile_instance(
+                            sections,
+                            inst["instance"],
+                            marker=inst.get("marker"),
+                        )
+                    else:
+                        _remove_localfile_instance(sections, inst, marker=feat.get("feature_id"))
                 continue
             _apply_section_desired(sections, section_tag, desired)
 

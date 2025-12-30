@@ -1,233 +1,179 @@
-## 1. Project Overview
+## Wazumation
 
-Wazumation is a local-only Python tool that sanitizes, validates, and parses Wazuh (OSSEC) XML configuration files such as `ossec.conf`.
+Wazumation is a **local-only** configuration automation tool for **Wazuh managers**.
 
-In real Wazuh environments, `ossec.conf` can become malformed (for example, trailing non-XML content after `</ossec_config>` or multiple `<ossec_config>` blocks). Malformed XML can break Wazuh configuration loading and cause service instability. This tool exists to make those problems detectable and avoidable by producing a clean XML block and structured output that automation can consume.
+It provides:
+- **Feature Selector (CLI + lightweight GUI)**: enable/disable a curated set of Wazuh configuration features by editing the **real** `ossec.conf` safely.
+- **Self Test**: one command / one click to prove the tool is “synced” to the live configuration and can safely apply + detect + revert changes.
 
-## 2. Use Cases
+This repo also contains a full `ossec.conf` section/plugin system (`wazumation read/plan/diff/apply/...`) used for structured parsing and plan generation.
 
-1) Validating Wazuh `ossec.conf` files before deployment
-2) Preventing XML whitespace and trailing data issues that break parsers
-3) Parsing Wazuh configuration into structured data (JSON) for automation
-4) CI/CD and automation workflows for Wazuh environments
+### Hard safety guarantees
 
-## Feature Selection (CLI + optional GUI)
+- **Idempotent**: enabling the same feature repeatedly does not duplicate XML blocks.
+- **Reversible**: disabling removes only what Wazumation added (marker-based removal for repeated blocks like `<localfile>`).
+- **XML-aware**: `ossec.conf` parsing uses `lxml` + sanitization (handles extra trailing content / multiple `<ossec_config>` blocks).
+- **Backups + audit**: plans are persisted, backups are created before writes, and actions are audit-logged.
 
-Wazumation includes a feature selection mode that can enable or disable a curated set of common Wazuh configuration “features” on the **local Wazuh manager** by editing the real config files safely and idempotently.
+## Requirements
 
-### Feature CLI commands
+- **Target host**: Wazuh **manager** (Linux) with real config at **`/var/ossec/etc/ossec.conf`** (default).
+- **Python**: 3.9+ (recommended 3.10+)
+- **Dependencies**: `lxml` (Tkinter GUI uses stdlib `tkinter`)
 
-1) List available features:
+If you run feature toggles or self test on a non-manager node, Wazumation will fail clearly.
+
+## Install (from source)
+
+```bash
+git clone https://github.com/ThreatRec0n/wazumation.git
+cd wazumation
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+```
+
+## Quickstart (Feature Selector)
+
+### List available features
 
 ```bash
 wazumation --list
 ```
 
-2) Show current feature status:
+![wazumation --list](docs/assets/cli-list.svg)
+
+### Show live status (reads real config)
 
 ```bash
 wazumation --status
 ```
 
-3) Enable one or more features (comma-separated):
+![wazumation --status](docs/assets/cli-status.svg)
+
+### Enable / disable (idempotent)
+
+Enable:
 
 ```bash
 wazumation --enable fim-enhanced,vuln-detector --approve-features
 ```
 
-4) Disable one or more features (comma-separated):
+Disable:
 
 ```bash
 wazumation --disable vuln-detector --approve-features
 ```
 
-5) Show last recorded diff for an enabled feature:
+Notes:
+- Use `--dry-run` to generate and validate a plan without changing anything.
+- `--approve-features` is required to modify the live system (safety gate).
+
+### Diff (feature)
 
 ```bash
-wazumation --diff-feature fim-enhanced
+wazumation --diff-feature localfile-nginx
 ```
 
-6) Launch the GUI selector:
+This prints the **stored plan diff** for the last time the feature was applied (from the state file).
+
+![wazumation --diff-feature](docs/assets/cli-diff-feature.svg)
+
+### GUI (lightweight)
 
 ```bash
 wazumation --gui
 ```
 
-### Safety model for features
-
-1) Changes are only applied to the **local machine**.
-2) A change requires explicit approval using `--approve-features` (or use `--dry-run`).
-3) File writes are atomic and backed up before modification.
-4) If validation fails or service restart fails, the tool rolls back automatically.
-
-### Backups and state
-
-1) Backups are written under the selected `--data-dir` (default is `~/.wazumation` in current CLI).
-2) Feature state is stored in `/var/lib/wazumation/state.json` when possible, otherwise `~/.wazumation/state.json`.
-
-## 3. What This Tool Is NOT
-
-1) Not a Wazuh replacement
-2) Not an agent or manager installer
-3) Not a live config editor
-
-## 4. Prerequisites
-
-1) Python 3.10+
-2) A Python virtual environment
-3) `lxml`
-4) `xmllint` (from `libxml2-utils`)
-
-## 5. Installation (exact commands)
-
-1) Clone and enter repo:
+Or:
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/wazumation.git
-cd wazumation
+wazumation-gui
 ```
 
-2) Create and activate venv:
+The GUI shows the live detected status and lets you multi-select features and apply changes with logging output.
+
+![GUI snapshot](docs/assets/gui-snapshot.svg)
+
+## Self Test (one command / one click)
+
+The self test proves the tool is “synced” with the real Wazuh config by running an end-to-end pipeline:
+
+1) Read live config and record a baseline (semantic hash + detected state map)
+2) Apply a safe temporary probe change via the **same planner + applier** path as feature enable
+3) Re-read and confirm the probe is detected
+4) Revert via the **same disable** path
+5) Re-read and confirm return-to-baseline
+6) Run a sandbox invalid-XML safety gate (validator must reject bad XML)
+
+Run from CLI:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+wazumation test
 ```
 
-3) Install dependencies in the venv:
+Or:
 
 ```bash
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+wazumation --self-test
 ```
 
-## 6. Validation and Testing
+Run from GUI:
+- Launch `wazumation --gui`
+- Click **Self Test**
 
-1) Create a clean config for testing parsing:
+PASS means Wazumation can safely apply + detect + revert changes using the real parser/writer and validation gates. FAIL includes the phase, reason, and suggested remediation.
+
+![self test pass](docs/assets/self-test-pass.svg)
+
+## Feature catalog (current)
+
+| Feature ID | Description | What it changes |
+|---|---|---|
+| `fim-enhanced` | Syscheck hardening defaults | Updates `<syscheck>` keys (`scan_on_start`, `whodata`) |
+| `auditd-monitoring` | Auditd ingestion template | Adds a `<localfile>` for `/var/log/audit/audit.log` |
+| `vuln-detector` | Enable vuln detector | Ensures `<vulnerability-detection><enabled>yes</enabled>` |
+| `sca-cis` | Enable SCA module | Ensures `<sca><enabled>yes</enabled>` |
+| `localfile-nginx` | Nginx access log ingestion | Adds a `<localfile>` for `/var/log/nginx/access.log` |
+| `email-alerts` | Email alerts | Prompts for SMTP settings and writes `<global>` keys |
+
+## Backups, state, and logs
+
+- **Plans**: `--data-dir/feature_plans/features-<id>.json`
+- **Backups**: `--data-dir/backups/` (timestamped before writes)
+- **Feature state**:
+  - Linux preferred: `/var/lib/wazumation/state.json`
+  - Otherwise: `~/.wazumation/state.json`
+- **Audit log DB**: `--data-dir/audit.db`
+
+## Verification checklist (recommended)
+
+- Validate XML:
 
 ```bash
-sed -n '1,/<\\/ossec_config>/p' /var/ossec/etc/ossec.conf > /tmp/ossec_fixed.conf
+xmllint --noout /var/ossec/etc/ossec.conf
 ```
 
-2) Validate XML:
+- After enable/disable:
+  - `wazumation --status` shows expected enabled/disabled state
+  - Re-running `--enable` does not duplicate blocks (idempotency)
+  - `wazumation --disable` removes only Wazumation-marked blocks
+  - `systemctl status wazuh-manager` is healthy (if you restart/reload)
 
-```bash
-xmllint --noout /tmp/ossec_fixed.conf
-```
-
-No output means success.
-
-3) Run the test suite:
+## Development / tests
 
 ```bash
 python -m pytest -q
 ```
 
-Expected output includes:
-
-```text
-32 passed
-```
-
-4) Validate syscheck parsing (JSON output, no traceback):
+This repo also includes tools to generate the documentation assets:
 
 ```bash
-wazumation read syscheck --config /tmp/ossec_fixed.conf
+python tools/generate_docs_assets.py
 ```
 
-5) Generate the authoritative section list (one-time in a source checkout):
-
-```bash
-python tools/sync_wazuh_sections.py
-```
-
-Expected output:
-
-```text
-[OK] Wrote 43 sections to data/wazuh_sections.json
-```
-
-## 7. Screenshots
-
-This repository includes a proof screenshot of a passing test run:
-
-![pytest success proof](screenshots/pytest-success.png)
-
-This screenshot proves that the test suite was executed from an activated virtual environment using `python -m pytest -q` and that it completed successfully with `32 passed`.
-
-## 8. Troubleshooting
-
-### 8.1 Missing lxml
-
-1) Symptom:
-
-```text
-ModuleNotFoundError: No module named 'lxml'
-```
-
-2) Fix (install into the active venv):
-
-```bash
-source venv/bin/activate
-python -m pip install lxml
-```
-
-### 8.2 pytest not found
-
-1) Symptom:
-
-```text
-pytest: command not found
-```
-
-2) Wrong path we tried:
-
-```bash
-sudo apt install python3-pytest
-pytest -q
-```
-
-3) Fix (install into the active venv):
-
-```bash
-source venv/bin/activate
-python -m pip install pytest
-python -m pytest -q
-```
-
-### 8.3 XML trailing whitespace / extra content errors
-
-1) Symptom (commonly seen with `lxml` on real `ossec.conf`):
-
-```text
-lxml.etree.XMLSyntaxError: Extra content at the end of the document
-```
-
-2) Fix (extract a clean first block and re-validate):
-
-```bash
-sed -n '1,/<\\/ossec_config>/p' /var/ossec/etc/ossec.conf > /tmp/ossec_fixed.conf
-xmllint --noout /tmp/ossec_fixed.conf
-wazumation read syscheck --config /tmp/ossec_fixed.conf
-```
-
-### 8.4 Virtual environment not activated
-
-1) Symptom:
-
-```text
-Installed packages are missing or the wrong pytest/python is being used.
-```
-
-2) Fix:
-
-```bash
-source venv/bin/activate
-which python
-python -m pytest --version
-```
-
-## 9. License
+## License
 
 MIT
 

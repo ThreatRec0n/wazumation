@@ -10,12 +10,15 @@ from typing import Optional, List
 
 from wazumation.features.registry import get_feature_registry
 from wazumation.features.state import FeatureState
+from wazumation.features.detector import detect_feature_states
 from wazumation.features.cli import cmd_enable_disable
+from wazumation.features.self_test import run_self_test
 
 
 def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, validator) -> int:
     reg = get_feature_registry()
     st = FeatureState.load(state_path)
+    detected = detect_feature_states(config_path)
 
     root = tk.Tk()
     root.title("Wazumation - Feature Selector")
@@ -31,7 +34,14 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
     for fid in sorted(reg.keys()):
         v = tk.BooleanVar(value=(fid in st.enabled))
         vars_by_id[fid] = v
-        cb = tk.Checkbutton(frame, text=f"{fid} — {reg[fid].title}", variable=v, anchor="w", justify="left")
+        status = detected.get(fid, {}).get("status", "unknown")
+        cb = tk.Checkbutton(
+            frame,
+            text=f"[{status.upper()}] {fid} — {reg[fid].title}",
+            variable=v,
+            anchor="w",
+            justify="left",
+        )
         cb.pack(fill="x", anchor="w")
 
     dry_run_var = tk.BooleanVar(value=True)
@@ -86,7 +96,31 @@ def launch_gui(*, config_path: Path, data_dir: Path, state_path: Path, applier, 
 
     btns = tk.Frame(root)
     btns.pack(fill="x", padx=10, pady=10)
+    log = tk.Text(root, height=10, bg="#111", fg="#eee")
+    log.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+
+    def append_log(s: str) -> None:
+        log.insert("end", s + "\n")
+        log.see("end")
+
+    def on_self_test():
+        # Run in background thread to avoid blocking UI.
+        import threading
+
+        def worker():
+            try:
+                res = run_self_test(config_path=config_path, data_dir=data_dir, applier=applier, validator=validator)
+                root.after(0, lambda: append_log(res.render()))
+                if res.passed:
+                    root.after(0, lambda: messagebox.showinfo("Self Test", "PASS: Tool synced"))
+                else:
+                    root.after(0, lambda: messagebox.showerror("Self Test", "FAIL: Tool not synced"))
+            except Exception as e:
+                root.after(0, lambda: messagebox.showerror("Self Test Error", str(e)))
+
+        threading.Thread(target=worker, daemon=True).start()
     tk.Button(btns, text="Apply", command=on_apply).pack(side="right")
+    tk.Button(btns, text="Self Test", command=on_self_test).pack(side="left")
     tk.Button(btns, text="Cancel", command=root.destroy).pack(side="right", padx=(0, 8))
 
     root.mainloop()

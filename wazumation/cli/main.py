@@ -21,6 +21,7 @@ from wazumation.features.cli import (
 )
 from wazumation.features.state import default_state_path
 from wazumation.features.gui import launch_gui
+from wazumation.features.self_test import run_self_test
 
 
 def main():
@@ -48,6 +49,7 @@ def main():
     parser.add_argument("--status", action="store_true", help="Show current feature status")
     parser.add_argument("--diff-feature", type=str, help="Show diff for a feature (by feature_id)")
     parser.add_argument("--gui", action="store_true", help="Launch GUI feature selector")
+    parser.add_argument("--self-test", action="store_true", help="Run self test (apply+detect+revert) to prove tool is synced")
     parser.add_argument(
         "--approve-features",
         action="store_true",
@@ -102,6 +104,10 @@ def main():
     list_parser = subparsers.add_parser("list-plugins", help="List supported ossec.conf sections/plugins")
     _add_common_overrides(list_parser)
 
+    # Self test (subcommand)
+    test_parser = subparsers.add_parser("test", help="Run self test (apply+detect+revert) to prove tool is synced")
+    _add_common_overrides(test_parser)
+
     args = parser.parse_args()
 
     feature_mode = any(
@@ -112,6 +118,7 @@ def main():
             args.status,
             bool(args.diff_feature),
             args.gui,
+            args.self_test,
         ]
     )
 
@@ -141,7 +148,7 @@ def main():
         if args.list:
             sys.exit(cmd_list_features())
         if args.status:
-            sys.exit(cmd_status(state_path))
+            sys.exit(cmd_status(state_path, args.config))
         if args.diff_feature:
             sys.exit(cmd_diff(args.diff_feature, state_path, data_dir))
         if args.gui:
@@ -154,6 +161,10 @@ def main():
                     validator=validator,
                 )
             )
+        if args.self_test:
+            res = run_self_test(config_path=args.config, data_dir=data_dir, applier=applier, validator=validator)
+            print(res.render())
+            sys.exit(0 if res.passed else 1)
         if enable_list or disable_list:
             sys.exit(
                 cmd_enable_disable(
@@ -313,6 +324,11 @@ def main():
         for p in sorted(plugins, key=lambda x: x.name):
             print(p.name)
         sys.exit(0)
+
+    elif args.command == "test":
+        res = run_self_test(config_path=args.config, data_dir=data_dir, applier=applier, validator=validator)
+        print(res.render())
+        sys.exit(0 if res.passed else 1)
 
 
 if __name__ == "__main__":

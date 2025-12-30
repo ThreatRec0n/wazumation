@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Andre\Desktop\wazuh\wazumation\cli\main.py", line 335, in <module>
+    main()
+  File "C:\Users\Andre\Desktop\wazuh\wazumation\cli\main.py", line 131, in main
+    data_dir.mkdir(exist_ok=True)
+  File "C:\Users\Andre\anaconda3\Lib\pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\Users\\Andre\\AppData\\Local\\Temp\\tmpzc11yk31\\home\\.wazumation'
