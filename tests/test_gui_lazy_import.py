@@ -42,6 +42,6 @@ def test_gui_requires_tkinter_message(monkeypatch, capsys):
         )
     assert rc == 1
     captured = capsys.readouterr()
-    assert "GUI requires python3-tk. Install with: sudo apt install python3-tk" in captured.err
+    assert "GUI requires python3-tk. Install: sudo apt-get update && sudo apt-get install -y python3-tk" in captured.err
 
 

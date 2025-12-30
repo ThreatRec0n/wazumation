@@ -25,11 +25,14 @@ class ConfigValidator:
         self.wazuh_control = wazuh_manager_path / "bin" / "wazuh-control"
 
     def validate_ossec_conf(self, config_path: Path) -> Tuple[bool, List[str]]:
-        """Validate ossec.conf using Wazuh's built-in validator (wazuh-control -t)."""
+        """Validate ossec.conf using multiple methods (xmllint + lxml + wazuh-control when supported)."""
         errors = []
-        if not self.wazuh_control.exists():
-            # Fallback: basic XML validation
-            return self._validate_xml(config_path)
+        # Always do local XML validation first (fast + actionable).
+        ok_xml, xml_errors = self._validate_xml(config_path)
+        if not ok_xml:
+            return False, [
+                "Wazuh config validation failed. Fix ossec.conf before restart. Output: " + "; ".join(xml_errors)
+            ]
 
         try:
             # 1) xmllint gate (best-effort, but preferred when available)
@@ -48,22 +51,30 @@ class ConfigValidator:
                     )
                     return False, errors
 
-            # Use wazuh-control -t to validate (some installs do not support 'testconfig' subcommand).
-            cmd = [str(self.wazuh_control), "-t"]
-            if os.name == "posix" and hasattr(os, "geteuid") and os.geteuid() != 0:
-                # Fully non-interactive sudo for validation (matches docs guidance).
-                cmd = ["sudo", "-n", *cmd]
+            # 2) wazuh-control validation (best-effort; varies by Wazuh/OSSEC builds).
+            if self.wazuh_control.exists():
+                candidates = [
+                    [str(self.wazuh_control), "-t"],
+                    [str(self.wazuh_control), "info", "-t"],
+                ]
+                if os.name == "posix" and hasattr(os, "geteuid") and os.geteuid() != 0:
+                    candidates = [["sudo", "-n", *c] for c in candidates]
 
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            out = (result.stdout or "") + (("\n" + result.stderr) if result.stderr else "")
-            if result.returncode != 0:
-                errors.append("Wazuh config validation failed. Fix ossec.conf before restart. Output: " + out.strip())
+                last_out = ""
+                for cmd in candidates:
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                    out = (result.stdout or "") + (("\n" + result.stderr) if result.stderr else "")
+                    last_out = out.strip()
+                    if result.returncode == 0:
+                        return True, []
+                    # If this command form is unsupported, try the next candidate.
+                    if "Usage:" in out and "wazuh-control" in out:
+                        continue
+                errors.append(
+                    "Wazuh config validation failed. Fix ossec.conf before restart. Output: " + last_out
+                )
                 return False, errors
+
             return True, []
         except subprocess.TimeoutExpired:
             errors.append("Validation timeout")
@@ -73,15 +84,24 @@ class ConfigValidator:
             return False, errors
 
     def _validate_xml(self, config_path: Path) -> Tuple[bool, List[str]]:
-        """Basic XML validation."""
+        """XML validation (syntax + minimal semantic checks)."""
         errors = []
         try:
             from lxml import etree
-            parser = etree.XMLParser(remove_blank_text=True)
-            etree.parse(str(config_path), parser)
+            tree = etree.parse(str(config_path), etree.XMLParser(remove_blank_text=True))
+            root = tree.getroot()
+            if root.tag != "ossec_config":
+                errors.append(f"Root element must be <ossec_config>, found <{root.tag}>")
+                return False, errors
+
+            for elem in root.xpath("//enabled"):
+                value = elem.text.strip().lower() if elem.text else ""
+                if value not in ["yes", "no"]:
+                    errors.append(f"Invalid <enabled> value: '{elem.text}' (must be 'yes' or 'no')")
+                    return False, errors
             return True, []
         except etree.XMLSyntaxError as e:
-            errors.append(f"XML syntax error: {str(e)}")
+            errors.append(f"XML parse error at line {e.lineno}: {e.msg}")
             return False, errors
         except Exception as e:
             errors.append(f"XML validation error: {str(e)}")

@@ -78,6 +78,7 @@ def cmd_enable_disable(
     dry_run: bool,
     interactive: bool,
     prompt_fn_override,
+    values_by_feature: Optional[dict] = None,
     applier,
     validator,
 ) -> int:
@@ -97,7 +98,39 @@ def cmd_enable_disable(
     enable_feats = [reg[x] for x in enable if x not in st.enabled]
     disable_feats = [reg[x] for x in disable if x in st.enabled]
 
-    # Capture restore snapshot for features being enabled.
+    # Capture restore snapshot for features being enabled (best-effort safe revert).
+    # For schema-driven features, capture existing values for the relevant keys so disable can restore.
+    from wazumation.wazuh.xml_parser import WazuhXMLParser
+
+    parsed = WazuhXMLParser(config_path).parse()
+    sections = parsed.get("sections", {})
+
+    def _section_dict(tag: str):
+        sec = sections.get(tag)
+        if isinstance(sec, dict):
+            return sec
+        if isinstance(sec, list) and sec and isinstance(sec[0], dict):
+            return sec[0]
+        return None
+
+    def _get_child_text(sd, key: str) -> Optional[str]:
+        if not isinstance(sd, dict):
+            return None
+        children = sd.get("children") or {}
+        v = children.get(key)
+        if isinstance(v, dict):
+            return v.get("text")
+        if isinstance(v, str):
+            return v
+        if isinstance(v, list):
+            # join list children into comma string
+            parts = []
+            for it in v:
+                if isinstance(it, dict) and "text" in it and it["text"]:
+                    parts.append(str(it["text"]))
+            return ",".join(parts) if parts else None
+        return None
+
     restore_snapshot = {}
     for f in enable_feats:
         restore = {}
@@ -111,6 +144,13 @@ def cmd_enable_disable(
                 restore.setdefault("__remove_localfile__", []).append(
                     {"instance": action["ensure_instance"], "marker": f.feature_id}
                 )
+            elif "desired_from_values" in action:
+                sd = _section_dict(section)
+                desired_restore = {}
+                for ossec_key in (action.get("desired_from_values") or {}).keys():
+                    prev = _get_child_text(sd, ossec_key)
+                    desired_restore[ossec_key] = prev if prev is not None else None
+                restore[section] = desired_restore
         restore_snapshot[f.feature_id] = {"restore": restore}
 
     # Build a plan applying all requested toggles as a single atomic change.
@@ -136,6 +176,7 @@ def cmd_enable_disable(
         state_snapshot={fid: st.enabled[fid] for fid in disable if fid in st.enabled} | restore_snapshot,
         prompt_fn=prompt_fn,
         is_manager_fn=None,
+        values_by_feature=values_by_feature,
     )
 
     plan = result.plan
@@ -159,7 +200,13 @@ def cmd_enable_disable(
         print("No changes needed.")
         return 0
 
-    success, errors = applier.apply(plan, require_approval=approve_features)
+    # Honor dry-run regardless of how the applier was constructed (GUI may reuse a non-dry-run applier).
+    orig_dry_run = getattr(applier, "dry_run", False)
+    try:
+        applier.dry_run = bool(dry_run)
+        success, errors = applier.apply(plan, require_approval=approve_features)
+    finally:
+        applier.dry_run = orig_dry_run
     if not success:
         print("[FAIL] Feature apply failed:", file=sys.stderr)
         for e in errors:
