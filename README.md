@@ -11,6 +11,60 @@ In real Wazuh environments, `ossec.conf` can become malformed (for example, trai
 3) Parsing Wazuh configuration into structured data (JSON) for automation
 4) CI/CD and automation workflows for Wazuh environments
 
+## Feature Selection (CLI + optional GUI)
+
+Wazumation includes a feature selection mode that can enable or disable a curated set of common Wazuh configuration “features” on the **local Wazuh manager** by editing the real config files safely and idempotently.
+
+### Feature CLI commands
+
+1) List available features:
+
+```bash
+wazumation --list
+```
+
+2) Show current feature status:
+
+```bash
+wazumation --status
+```
+
+3) Enable one or more features (comma-separated):
+
+```bash
+wazumation --enable fim-enhanced,vuln-detector --approve-features
+```
+
+4) Disable one or more features (comma-separated):
+
+```bash
+wazumation --disable vuln-detector --approve-features
+```
+
+5) Show last recorded diff for an enabled feature:
+
+```bash
+wazumation --diff-feature fim-enhanced
+```
+
+6) Launch the GUI selector:
+
+```bash
+wazumation --gui
+```
+
+### Safety model for features
+
+1) Changes are only applied to the **local machine**.
+2) A change requires explicit approval using `--approve-features` (or use `--dry-run`).
+3) File writes are atomic and backed up before modification.
+4) If validation fails or service restart fails, the tool rolls back automatically.
+
+### Backups and state
+
+1) Backups are written under the selected `--data-dir` (default is `~/.wazumation` in current CLI).
+2) Feature state is stored in `/var/lib/wazumation/state.json` when possible, otherwise `~/.wazumation/state.json`.
+
 ## 3. What This Tool Is NOT
 
 1) Not a Wazuh replacement

@@ -13,6 +13,14 @@ from wazumation.core.diff import DiffEngine
 from wazumation.core.change_plan import ChangePlan
 from wazumation.wazuh.plugin import PluginRegistry
 from wazumation.wazuh.plugins import register_all_plugins
+from wazumation.features.cli import (
+    cmd_list_features,
+    cmd_status,
+    cmd_enable_disable,
+    cmd_diff,
+)
+from wazumation.features.state import default_state_path
+from wazumation.features.gui import launch_gui
 
 
 def main():
@@ -32,6 +40,19 @@ def main():
     )
     parser.add_argument("--dry-run", action="store_true", help="Dry run mode (no changes)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+
+    # Feature selection mode (flags, no subcommand)
+    parser.add_argument("--list", action="store_true", help="List available Wazuh features")
+    parser.add_argument("--enable", type=str, help="Enable features (comma-separated)")
+    parser.add_argument("--disable", type=str, help="Disable features (comma-separated)")
+    parser.add_argument("--status", action="store_true", help="Show current feature status")
+    parser.add_argument("--diff-feature", type=str, help="Show diff for a feature (by feature_id)")
+    parser.add_argument("--gui", action="store_true", help="Launch GUI feature selector")
+    parser.add_argument(
+        "--approve-features",
+        action="store_true",
+        help="Explicitly approve applying feature changes (required unless --dry-run)",
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
@@ -83,7 +104,18 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.command:
+    feature_mode = any(
+        [
+            args.list,
+            bool(args.enable),
+            bool(args.disable),
+            args.status,
+            bool(args.diff_feature),
+            args.gui,
+        ]
+    )
+
+    if not args.command and not feature_mode:
         parser.print_help()
         sys.exit(1)
 
@@ -101,6 +133,45 @@ def main():
     register_all_plugins(plugin_registry)
 
     # Execute command
+    if feature_mode:
+        state_path = default_state_path()
+        enable_list = [x.strip() for x in (args.enable or "").split(",") if x.strip()]
+        disable_list = [x.strip() for x in (args.disable or "").split(",") if x.strip()]
+
+        if args.list:
+            sys.exit(cmd_list_features())
+        if args.status:
+            sys.exit(cmd_status(state_path))
+        if args.diff_feature:
+            sys.exit(cmd_diff(args.diff_feature, state_path, data_dir))
+        if args.gui:
+            sys.exit(
+                launch_gui(
+                    config_path=args.config,
+                    data_dir=data_dir,
+                    state_path=state_path,
+                    applier=applier,
+                    validator=validator,
+                )
+            )
+        if enable_list or disable_list:
+            sys.exit(
+                cmd_enable_disable(
+                    config_path=args.config,
+                    data_dir=data_dir,
+                    state_path=state_path,
+                    enable=enable_list,
+                    disable=disable_list,
+                    approve_features=args.approve_features,
+                    dry_run=args.dry_run,
+                    interactive=sys.stdin.isatty(),
+                    prompt_fn_override=None,
+                    applier=applier,
+                    validator=validator,
+                )
+            )
+        sys.exit(0)
+
     if args.command == "read":
         module = args.module
         if module == "wazuh-db":
