@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import uuid
 
 from wazumation.core.change_plan import ChangePlan, ChangeType, FileChange, ServiceChange
-from wazumation.wazuh.xml_parser import WazuhXMLParser, WazuhXMLWriter
+from wazumation.core.config_manager import WazuhConfigManager
 
 
 def _is_wazuh_manager(config_path: Path) -> Tuple[bool, str]:
@@ -159,24 +159,23 @@ def build_feature_plan(
     if not ok:
         raise RuntimeError(reason)
 
-    parser = WazuhXMLParser(config_path)
-    full = parser.parse()
-    sections = full.get("sections", {})
-
     # Snapshot old content for a single-file plan.
     old_content = config_path.read_text(encoding="utf-8") if config_path.exists() else ""
+    new_content = old_content
+    mgr = WazuhConfigManager()
 
     # Apply enable actions.
     for feat in enable_features:
+        fid = feat.get("feature_id")
         for action in feat["actions"]:
             section = action["section"]
             if "desired" in action:
-                _apply_section_desired(sections, section, action["desired"])
+                new_content = mgr.upsert_section_desired(new_content, section, action["desired"], feature_id=fid)
             elif "ensure_instance" in action and section == "localfile":
-                _ensure_localfile_instance(
-                    sections,
+                new_content = mgr.ensure_localfile_instance(
+                    new_content,
                     action["ensure_instance"],
-                    marker=action.get("marker") or feat.get("feature_id"),
+                    marker=action.get("marker") or fid,
                 )
             elif "desired_from_prompts" in action:
                 if not prompt_fn:
@@ -184,35 +183,32 @@ def build_feature_plan(
                 desired = {}
                 for k, spec in action["desired_from_prompts"].items():
                     desired[k] = prompt_fn(spec["prompt"], spec.get("default"), spec.get("required", False))
-                _apply_section_desired(sections, section, desired)
+                new_content = mgr.upsert_section_desired(new_content, section, desired, feature_id=fid)
             elif "desired_from_values" in action:
                 values = (values_by_feature or {}).get(feat["feature_id"], {})
                 desired = {}
                 for ossec_key, value_key in action["desired_from_values"].items():
                     desired[ossec_key] = values.get(value_key)
-                _apply_section_desired(sections, section, desired)
+                new_content = mgr.upsert_section_desired(new_content, section, desired, feature_id=fid)
 
     # Apply disable: restore previous values captured in state_snapshot.
     for feat in disable_features:
+        fid = feat.get("feature_id")
         snap = state_snapshot.get(feat["feature_id"], {})
         restore = snap.get("restore", {})
         for section_tag, desired in restore.items():
             if section_tag == "__remove_localfile__":
                 for inst in desired:
                     if isinstance(inst, dict) and "instance" in inst:
-                        _remove_localfile_instance(
-                            sections,
+                        new_content = mgr.remove_localfile_instance(
+                            new_content,
                             inst["instance"],
                             marker=inst.get("marker"),
                         )
                     else:
-                        _remove_localfile_instance(sections, inst, marker=feat.get("feature_id"))
+                        new_content = mgr.remove_localfile_instance(new_content, inst, marker=fid)
                 continue
-            _apply_section_desired(sections, section_tag, desired)
-
-    full["sections"] = sections
-    writer = WazuhXMLWriter(config_path)
-    new_content = writer.write(full)
+            new_content = mgr.upsert_section_desired(new_content, section_tag, desired, feature_id=fid)
 
     plan_id = str(uuid.uuid4())[:8]
     plan = ChangePlan(
