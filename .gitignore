@@ -19,6 +19,7 @@ env/
 .coverage
 htmlcov/
 .mypy_cache/
+.ruff_cache/
 
 # OS / editors
 .DS_Store
@@ -29,10 +30,16 @@ Thumbs.db
 # Local runtime data
 .wazumation_test/
 .wazumation/
+.wazumation_demo/
+
+# Generated docs assets (only track if explicitly desired)
+docs/assets/
 
 # Misc
 *.log
 *.db
+*.sqlite
+*.sqlite3
 .env
 
 
