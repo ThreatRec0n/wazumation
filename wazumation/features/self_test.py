@@ -79,7 +79,9 @@ def run_self_test(
     (data_dir / "backups").mkdir(parents=True, exist_ok=True)
     (data_dir / "feature_plans").mkdir(parents=True, exist_ok=True)
 
-    valid, errors = validator.validate_ossec_conf(config_path)
+    # Try validation first; if it fails due to common real-world XML issues,
+    # allow a single safe auto-fix (backup + truncate to valid ossec_config block).
+    valid, errors = validator.validate_ossec_conf(config_path, auto_fix=True)
     if not valid:
         return fail("Preflight: ossec.conf validation failed: " + "; ".join(errors))
     ok("ossec.conf validates before test")

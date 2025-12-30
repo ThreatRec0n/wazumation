@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import os
+import sys
+import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Callable
 
 from wazumation.features.registry import get_feature_registry
 from wazumation.features.state import FeatureState

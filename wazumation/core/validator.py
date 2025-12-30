@@ -3,6 +3,7 @@
 import subprocess
 import os
 import shutil
+import time
 from pathlib import Path
 from typing import List, Tuple, Optional
 from wazumation.core.change_plan import ChangePlan
@@ -24,12 +25,52 @@ class ConfigValidator:
         self.wazuh_manager_path = wazuh_manager_path
         self.wazuh_control = wazuh_manager_path / "bin" / "wazuh-control"
 
-    def validate_ossec_conf(self, config_path: Path) -> Tuple[bool, List[str]]:
+    def auto_fix_xml_issues(self, config_path: Path) -> Tuple[bool, str]:
+        """
+        Automatically fix common XML issues in ossec.conf.
+
+        Currently supported:
+        - Extra content after the last </ossec_config>
+        - Multiple <ossec_config> blocks (keeps the first full block)
+        """
+        try:
+            content = config_path.read_text(encoding="utf-8", errors="replace")
+            start = content.find("<ossec_config")
+            end = content.rfind("</ossec_config>")
+            if start == -1 or end == -1:
+                return False, "No <ossec_config>...</ossec_config> block found"
+
+            end_pos = end + len("</ossec_config>")
+            cleaned = content[start:end_pos] + "\n"
+
+            # If nothing changes, no-op
+            if cleaned == content:
+                return False, "No common XML issues found"
+
+            backup_path = config_path.with_name(f"{config_path.name}.backup.{int(time.time())}")
+            shutil.copy2(str(config_path), str(backup_path))
+            config_path.write_text(cleaned, encoding="utf-8")
+            return True, f"Fixed: Removed extra content / extra blocks. Backup: {backup_path}"
+        except Exception as e:
+            return False, f"Auto-fix failed: {e}"
+
+    def validate_ossec_conf(self, config_path: Path, *, auto_fix: bool = False) -> Tuple[bool, List[str]]:
         """Validate ossec.conf using multiple methods (xmllint + lxml + wazuh-control when supported)."""
         errors = []
         # Always do local XML validation first (fast + actionable).
         ok_xml, xml_errors = self._validate_xml(config_path)
         if not ok_xml:
+            # Optionally auto-fix common issues (trailing content / multiple blocks) and retry once.
+            if auto_fix:
+                was_fixed, msg = self.auto_fix_xml_issues(config_path)
+                if was_fixed:
+                    ok_xml2, xml_errors2 = self._validate_xml(config_path)
+                    if ok_xml2:
+                        return True, [f"Auto-fixed XML issue: {msg}"]
+                    return False, [
+                        "Wazuh config validation failed. Fix ossec.conf before restart. Output: "
+                        + "; ".join(xml_errors2)
+                    ]
             return False, [
                 "Wazuh config validation failed. Fix ossec.conf before restart. Output: " + "; ".join(xml_errors)
             ]

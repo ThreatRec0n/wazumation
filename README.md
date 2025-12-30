@@ -2,6 +2,19 @@
 
 Wazumation is a **local-only** configuration automation tool for **Wazuh managers**.
 
+## ⚡ Quick Install
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ThreatRec0n/Wazumation/main/install.sh | sudo bash
+```
+
+The installer will:
+1) Detect your OS and Wazuh manager installation
+2) Install required dependencies (Python venv, `xmllint`, `python3-tk`)
+3) Install Wazumation under `/opt/Wazumation` and create `/usr/local/bin/wazumation`
+4) Optionally fix common `ossec.conf` XML issues (`wazumation --fix-xml`)
+5) Run `wazumation --self-test`
+
 It provides:
 - **Feature Selector (CLI + lightweight GUI)**: enable/disable a curated set of Wazuh configuration features by editing the **real** `ossec.conf` safely.
 - **Self Test**: one command / one click to prove the tool is “synced” to the live configuration and can safely apply + detect + revert changes.

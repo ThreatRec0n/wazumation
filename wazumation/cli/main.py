@@ -51,6 +51,11 @@ def main():
     parser.add_argument("--gui", action="store_true", help="Launch GUI feature selector")
     parser.add_argument("--self-test", action="store_true", help="Run self test (apply+detect+revert) to prove tool is synced")
     parser.add_argument(
+        "--fix-xml",
+        action="store_true",
+        help="Automatically fix common XML issues in ossec.conf (backs up original first)",
+    )
+    parser.add_argument(
         "--approve-features",
         action="store_true",
         help="Explicitly approve applying feature changes (required unless --dry-run)",
@@ -119,6 +124,7 @@ def main():
             bool(args.diff_feature),
             args.gui,
             args.self_test,
+            args.fix_xml,
         ]
     )
 
@@ -144,7 +150,7 @@ def main():
         state_path = default_state_path()
         enable_list = [x.strip() for x in (args.enable or "").split(",") if x.strip()]
         disable_list = [x.strip() for x in (args.disable or "").split(",") if x.strip()]
-        needs_config = bool(args.status) or bool(args.gui) or bool(args.self_test) or bool(enable_list or disable_list)
+        needs_config = bool(args.status) or bool(args.gui) or bool(args.self_test) or bool(args.fix_xml) or bool(enable_list or disable_list)
         if needs_config:
             try:
                 args.config = detect_ossec_conf_path(config_override=args.config, state_path=state_path)
@@ -154,6 +160,11 @@ def main():
 
         if args.list:
             sys.exit(cmd_list_features())
+        if args.fix_xml:
+            print(f"Config: {args.config}", file=sys.stderr)
+            was_fixed, msg = validator.auto_fix_xml_issues(args.config)
+            print(msg)
+            sys.exit(0 if was_fixed else 1)
         if args.status:
             print(f"Config: {args.config}", file=sys.stderr)
             sys.exit(cmd_status(state_path, args.config))
